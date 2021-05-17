@@ -3,25 +3,22 @@ import 'dart:typed_data';
 
 import 'package:calidad_app/model/call.dart';
 import 'package:calidad_app/utils/call_utils.dart';
-
 import 'package:calidad_app/utils/device_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:usb_serial/transaction.dart';
 import 'package:usb_serial/usb_serial.dart';
 
-
-class Temperature extends StatefulWidget {
-  const Temperature({Key key, @required this.call}) : super(key: key);
+class Spo2Screen extends StatefulWidget {
+  const Spo2Screen({Key key, this.call}) : super(key: key);
 
   @override
-  _TemperatureState createState() => _TemperatureState();
-  final Call call;
+  _Spo2ScreenState createState() => _Spo2ScreenState();
+  final Call call; 
 }
 
-class _TemperatureState extends State<Temperature> {
+class _Spo2ScreenState extends State<Spo2Screen> {
   UsbDevice device;
-  double cel;
-  double far;
+ 
   int counter = 0;
   bool deviceState = false;
   List<String> _stream = [];
@@ -35,10 +32,10 @@ class _TemperatureState extends State<Temperature> {
   @override
   void initState() {
     super.initState();
-    cel = 0;
-    far = 0;
+    
 
     usb = UsbSerial.usbEventStream.listen((UsbEvent event) async {
+     
       _ports = await dv.getPorts();
 
       setState(() {
@@ -73,7 +70,7 @@ class _TemperatureState extends State<Temperature> {
 
   void connect(UsbDevice device) async {
     UsbPort _port;
-    List res;
+    double res;
     Transaction<String> _transaction;
     StreamSubscription _subscription;
 
@@ -91,28 +88,24 @@ class _TemperatureState extends State<Temperature> {
           _port.inputStream, Uint8List.fromList([13, 10]));
 
       _subscription = _transaction.stream.listen((String line) {
+        print(line);
         _stream.add(line);
       });
 
-      Timer(Duration(seconds: 5), () {
+      Timer(Duration(seconds: 40), () {
         _subscription.cancel();
         _transaction = null;
-        res = avgTemp(_stream);
-        cel = res[0];
-        far = res[1];
+        res = avgSpo2(_stream);
+       
         
         CallUtils callutils = CallUtils(); 
-        callutils.addTemperature(call:widget.call, value:cel.toString().substring(0, 4), name: "temperature");
+        callutils.addTemperature(call:widget.call, value:res.toString(), name: "spo2");
         setState(() {
           _serialData.add(Text(
-            "${cel.toString()}*C",
+            res.toString(),
             style: TextStyle(color: Colors.black),
           ));
-          _serialData.add(Text(
-            "${far.toString()}*F",
-            style: TextStyle(color: Colors.black),
-          ));
-
+         
           deviceState = !deviceState;
         });
         _stream.clear();
@@ -120,32 +113,25 @@ class _TemperatureState extends State<Temperature> {
     }
   }
 
-  List avgTemp(List<String> stream) {
-    int cCounter = 0;
-    int fCounter = 0;
-    double c = 0;
-    double f = 0;
-    List res = [];
+  double avgSpo2(List<String> stream) {
+    
+  
+    double spo2 = 0;
+
+    
     int len = stream.length;
+    print(len);
     for (int i = 1; i < len; i++) {
       if (stream[i].length > 0) {
-        if ((i - 1) % 3 == 0) {
-          cCounter++;
-          c = c + double.parse(stream[i].substring(12, 16));
-        } else if ((i - 2) % 3 == 0) {
-          fCounter++;
-          f = f + double.parse(stream[i].substring(12, 16));
-        }
+        spo2 += double.parse(stream[i]);
       }
     }
-    c = c / cCounter;
-    f = f / fCounter;
-    cCounter = 0;
-    fCounter = 0;
 
-    res.add(c);
-    res.add(f);
-    return res;
+    spo2 = spo2/len;
+    
+
+    
+    return spo2;
   }
 
   @override
@@ -153,7 +139,7 @@ class _TemperatureState extends State<Temperature> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.blue[900],
-        title: Text("Temperature"),
+        title: Text("SpO2"),
       ),
       backgroundColor: Colors.white,
       body: Container(
@@ -168,6 +154,7 @@ class _TemperatureState extends State<Temperature> {
                       child: Column(
                         children: [
                           Text("Device Connected"),
+                          SizedBox(height: 20),
                           Container(
                               margin: EdgeInsets.only(bottom: 10),
                               child: !deviceState
@@ -182,8 +169,8 @@ class _TemperatureState extends State<Temperature> {
                                       },
                                     )
                                   : Container(
-                                      height: 40,
-                                      width: 40,
+                                      height: 20,
+                                      width: 20,
                                       child: CircularProgressIndicator(),
                                     )),
                           ..._serialData

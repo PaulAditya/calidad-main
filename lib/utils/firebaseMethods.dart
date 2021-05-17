@@ -2,7 +2,7 @@ import 'package:calidad_app/model/call.dart';
 import 'package:calidad_app/model/callDetails.dart';
 import 'package:calidad_app/model/doctor.dart';
 import 'package:calidad_app/model/user.dart';
-import 'package:calidad_app/screens/otoscope.dart';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 

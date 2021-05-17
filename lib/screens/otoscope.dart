@@ -47,6 +47,11 @@ class _OtoscopeState extends State<Otoscope> {
                 });
                 await uploadToStorage(user.getUser.uid, widget.fileName)
                     .then((value) {
+                      if(value){
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Uploaded Succesfully")));
+                      }else{
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Try Again")));
+                      }
                   setState(() {
                     _isLoading = !_isLoading;
                   });
@@ -101,7 +106,7 @@ class _OtoscopeState extends State<Otoscope> {
     );
   }
 
-  Future uploadToStorage(String uid, String fileName) async {
+  Future<bool> uploadToStorage(String uid, String fileName) async {
     try {
       final DateTime now = DateTime.now();
       final int millSeconds = now.millisecondsSinceEpoch;
@@ -142,8 +147,10 @@ class _OtoscopeState extends State<Otoscope> {
 
       CallUtils cu = CallUtils();
       await cu.addFile(widget.call, url, fileName);
+      return true;
     } catch (error) {
       print(error);
     }
+    return false;
   }
 }

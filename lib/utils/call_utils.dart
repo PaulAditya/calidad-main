@@ -38,13 +38,17 @@ class CallUtils {
     return res;
   }
 
-  Future<bool> addTemperature({Call call, String temp}) {
-    return callMethods.addTemperature(call: call, temp: temp);
+  Future<bool> addTemperature({Call call, String value, String name}) {
+    return callMethods.addTemperature(call: call, name: name, value: value);
   }
 
   Future<bool> addFile(Call call, String url, String fileName) {
     return callMethods.addFile(call: call, url: url, name: fileName);
   }
 
+  Future<bool> addAudioFile(Call call, String url, String fileName,int index) {
+    
+    return callMethods.addAudioFile(call: call, url: url, name: fileName, ind: index);
+  }
   
 }

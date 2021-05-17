@@ -4,6 +4,7 @@ import 'package:calidad_app/model/call.dart';
 import 'package:calidad_app/provider/userProvider.dart';
 import 'package:calidad_app/utils/call_utils.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'package:firebase_storage/firebase_storage.dart';
@@ -13,97 +14,66 @@ import 'package:flutter_audio_recorder/flutter_audio_recorder.dart';
 import 'package:provider/provider.dart';
 
 class Stethoscope extends StatefulWidget {
-  const Stethoscope({Key key, @required this.call,@required this.fileName}) : super(key: key);
+  const Stethoscope(
+      {Key key,
+      @required this.call,
+      @required this.fileName,
+      @required this.noOfFiles})
+      : super(key: key);
   final Call call;
   final String fileName;
+  final int noOfFiles;
   @override
   _StethoscopeState createState() => _StethoscopeState();
 }
 
-Future<String> _localPath() async {
-  final directory = await getExternalStorageDirectory();
-  return directory.path;
-}
+
 
 class _StethoscopeState extends State<Stethoscope> {
-  bool _isUploading = false;
-  bool _isRecording = false;
-  FlutterAudioRecorder recorder;
+  
+
+  
 
   @override
   Widget build(BuildContext context) {
     final UserProvider user = Provider.of<UserProvider>(context);
-    return MaterialApp(
-      home: Scaffold(
-          appBar: AppBar(
-            backgroundColor: Colors.blue[900],
-            title: const Text('Stethoscope'),
+    return Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.blue[900],
+          title: const Text('Stethoscope'),
+        ),
+        body: Container(
+          padding: EdgeInsets.all(20),
+          child: Column(
+            children: List.generate(
+                widget.noOfFiles, (index) => RecordUpload(user:user,index: index, fileName: widget.fileName,call: widget.call)),
           ),
-          body: Container(
-            padding: EdgeInsets.all(20),
-            child: Center(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: <Widget>[
-                  GestureDetector(
-                    child: Container(
-                      height: 60.0,
-                      width: 80,
-                      decoration: BoxDecoration(
-                          color: Colors.blue[900],
-                          borderRadius: BorderRadius.circular(10)),
-                      child: Center(
-                          child: Icon(
-                        _isRecording
-                            ? Icons.pause
-                            : Icons.radio_button_checked_rounded,
-                        color: Colors.white,
-                      )),
-                    ),
-                    onTap: () async {
-                      if (_isRecording) {
-                        _stopRecording();
-                      } else {
-                        _record();
-                      }
-                    },
-                  ),
-                  GestureDetector(
-                    onTap: () async {
-                      setState(() {
-                        _isUploading = !_isUploading;
-                      });
-                      await uploadToStorage(user.getUser.uid, widget.fileName).then((value) {
-                        setState(() {
-                          _isUploading = !_isUploading;
-                        });
-                      });
-                    },
-                    child: !_isUploading?Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: Colors.blue[900],
-                      ),
-                      height: 60,
-                      width: 80,
-                      child:  Icon(
-                              Icons.upload_outlined,
-                              color: Colors.white,
-                            )
-                      
-                    
-                         
-                    ) : Container(
-                      padding: EdgeInsets.all(10),
-                      child: CircularProgressIndicator(backgroundColor: Colors.white,)),
-                  ),
-                ],
-              ),
-            ),
-          )),
-    );
+        ));
   }
 
+  
+}
+
+class RecordUpload extends StatefulWidget {
+  const RecordUpload({Key key, this.user, this.index, this.fileName, this.call}) : super(key: key);
+
+  @override
+  _RecordUploadState createState() => _RecordUploadState();
+  final UserProvider user;
+  final int index;
+  final String fileName;
+  final Call call;
+}
+
+class _RecordUploadState extends State<RecordUpload> {
+  bool _isUploading = false;
+  bool _isRecording = false;
+  FlutterAudioRecorder recorder;
+
+  Future<String> _localPath() async {
+  final directory = await getExternalStorageDirectory();
+  return directory.path;
+}
   _stopRecording() async {
     await recorder.stop().then((value) {
       setState(() {
@@ -112,15 +82,15 @@ class _StethoscopeState extends State<Stethoscope> {
     });
   }
 
-  _record() async {
+  _record(int index) async {
     var filename = await _localPath();
-    File file = File(filename+'/${widget.fileName}.wav');
-    
-    if(await file.exists()){
+    File file = File(filename + '/${widget.fileName}$index.wav');
+
+    if (await file.exists()) {
       await file.delete();
     }
 
-    recorder = new FlutterAudioRecorder(filename + '/${widget.fileName}.wav',
+    recorder = new FlutterAudioRecorder(filename + '/${widget.fileName}$index.wav',
         sampleRate: 22000, audioFormat: AudioFormat.WAV);
 
     await recorder.initialized;
@@ -131,7 +101,7 @@ class _StethoscopeState extends State<Stethoscope> {
     });
   }
 
-  Future uploadToStorage(String uid, String fileName) async {
+  Future<bool> uploadToStorage(String uid, String fileName, int index) async {
     try {
       final DateTime now = DateTime.now();
       final int millSeconds = now.millisecondsSinceEpoch;
@@ -141,9 +111,8 @@ class _StethoscopeState extends State<Stethoscope> {
       final String today = ('$month-$date');
       String dir = await _localPath();
 
-      File file = File(dir + '/${widget.fileName}.wav');
+      File file = File(dir + '/${widget.fileName}$index.wav');
 
-      
       setState(() {
         _isUploading = true;
       });
@@ -160,9 +129,98 @@ class _StethoscopeState extends State<Stethoscope> {
       });
 
       CallUtils cu = CallUtils();
-      await cu.addFile(widget.call, url, fileName);
+      await cu.addAudioFile(widget.call, url, fileName, index+1);
+      return true;
     } catch (error) {
       print(error);
     }
+    return false;
+  }
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.only(bottom: 10),
+      child: Center(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: <Widget>[
+            Container(
+              alignment: Alignment.center,
+              height: 40,
+              width: 60,
+              child: Text(
+                (widget.index+1).toString(),
+                style: GoogleFonts.montserrat(
+                    fontSize: 14, color: Colors.blue[900]),
+              ),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.blue[900]),
+                  color: Colors.white, borderRadius: BorderRadius.circular(10)),
+            ),
+            GestureDetector(
+              child: Container(
+                height: 40.0,
+                width: 60,
+                decoration: BoxDecoration(
+                    color: Colors.blue[900],
+                    borderRadius: BorderRadius.circular(10)),
+                child: Center(
+                    child: Icon(
+                  _isRecording
+                      ? Icons.pause
+                      : Icons.radio_button_checked_rounded,
+                  color: Colors.white,
+                )),
+              ),
+              onTap: () async {
+                if (_isRecording) {
+                  _stopRecording();
+                } else {
+                  _record(widget.index);
+                }
+              },
+            ),
+            GestureDetector(
+              onTap: () async {
+                setState(() {
+                  _isUploading = !_isUploading;
+                });
+                await uploadToStorage(widget.user.getUser.uid, widget.fileName, widget.index)
+                    .then((value) {
+                  if (value) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("Uploaded Succesfully")));
+                  } else {
+                    ScaffoldMessenger.of(context)
+                        .showSnackBar(SnackBar(content: Text("Try Again")));
+                  }
+                  setState(() {
+                    _isUploading = !_isUploading;
+                  });
+                });
+              },
+              child: !_isUploading
+                  ? Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        color: Colors.blue[900],
+                      ),
+                      height: 40,
+                      width: 60,
+                      child: Icon(
+                        Icons.upload_outlined,
+                        color: Colors.white,
+                      ))
+                  : Container(
+                      padding: EdgeInsets.all(10),
+                      child: CircularProgressIndicator(
+                        backgroundColor: Colors.white,
+                      )),
+            ),
+           
+          ],
+        ),
+      ),
+    );
   }
 }

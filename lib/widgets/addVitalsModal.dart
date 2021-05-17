@@ -1,6 +1,7 @@
 
 import 'package:calidad_app/model/call.dart';
 import 'package:calidad_app/screens/otoscope.dart';
+import 'package:calidad_app/screens/spo2.dart';
 import 'package:calidad_app/screens/stethoscope.dart';
 import 'package:calidad_app/screens/temperature_input.dart';
 import 'package:calidad_app/widgets/deviceCard.dart';
@@ -37,11 +38,12 @@ class AddVitalModal extends StatelessWidget {
               scrollDirection: Axis.horizontal,
               children: [
                 DeviceCard(image: 'assets/thermometer.png', title: 'Temperature', page: Temperature(call: call)),
+                DeviceCard(image: 'assets/oxygen.png', title: 'Spo2', page: Spo2Screen(call: call)),
                 DeviceCard(image: 'assets/otoscope.png', title: 'Otoscope', page: Otoscope(call: call, fileName: "otoscope",camera: false,)),
                 DeviceCard(image: 'assets/dental.png', title: 'Dental', page: Otoscope(call: call, fileName: "dental_video", camera: false,)),
-                DeviceCard(image: 'assets/stethoscope.png', title: 'Heart Sound', page: Stethoscope(call: call, fileName: "heart_audio",)),
-                DeviceCard(image: 'assets/lungs.png', title: 'Lung Sound', page: Stethoscope(call: call, fileName: "lungs_audio",)),
-                DeviceCard(image: 'assets/stomach.png', title: 'Abdomen', page: Stethoscope(call: call, fileName: "abdomen_audio",)),
+                DeviceCard(image: 'assets/stethoscope.png', title: 'Heart Sound', page: Stethoscope(call: call, fileName: "heart_audio",noOfFiles: 4,)),
+                DeviceCard(image: 'assets/lungs.png', title: 'Lung Sound', page: Stethoscope(call: call, fileName: "lungs_audio",noOfFiles: 8,)),
+                DeviceCard(image: 'assets/stomach.png', title: 'Abdomen', page: Stethoscope(call: call, fileName: "abdomen_audio",noOfFiles: 4,)),
                 DeviceCard(image: 'assets/dermis.png', title: 'Skin', page: Otoscope(call: call, fileName: "skin_image", camera: true,)),
               ],
             ),
