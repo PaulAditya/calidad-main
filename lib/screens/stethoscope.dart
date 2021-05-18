@@ -27,13 +27,7 @@ class Stethoscope extends StatefulWidget {
   _StethoscopeState createState() => _StethoscopeState();
 }
 
-
-
 class _StethoscopeState extends State<Stethoscope> {
-  
-
-  
-
   @override
   Widget build(BuildContext context) {
     final UserProvider user = Provider.of<UserProvider>(context);
@@ -46,16 +40,20 @@ class _StethoscopeState extends State<Stethoscope> {
           padding: EdgeInsets.all(20),
           child: Column(
             children: List.generate(
-                widget.noOfFiles, (index) => RecordUpload(user:user,index: index, fileName: widget.fileName,call: widget.call)),
+                widget.noOfFiles,
+                (index) => RecordUpload(
+                    user: user,
+                    index: index,
+                    fileName: widget.fileName,
+                    call: widget.call)),
           ),
         ));
   }
-
-  
 }
 
 class RecordUpload extends StatefulWidget {
-  const RecordUpload({Key key, this.user, this.index, this.fileName, this.call}) : super(key: key);
+  const RecordUpload({Key key, this.user, this.index, this.fileName, this.call})
+      : super(key: key);
 
   @override
   _RecordUploadState createState() => _RecordUploadState();
@@ -71,9 +69,10 @@ class _RecordUploadState extends State<RecordUpload> {
   FlutterAudioRecorder recorder;
 
   Future<String> _localPath() async {
-  final directory = await getExternalStorageDirectory();
-  return directory.path;
-}
+    final directory = await getExternalStorageDirectory();
+    return directory.path;
+  }
+
   _stopRecording() async {
     await recorder.stop().then((value) {
       setState(() {
@@ -90,8 +89,10 @@ class _RecordUploadState extends State<RecordUpload> {
       await file.delete();
     }
 
-    recorder = new FlutterAudioRecorder(filename + '/${widget.fileName}$index.wav',
-        sampleRate: 22000, audioFormat: AudioFormat.WAV);
+    recorder = new FlutterAudioRecorder(
+        filename + '/${widget.fileName}$index.wav',
+        sampleRate: 22000,
+        audioFormat: AudioFormat.WAV);
 
     await recorder.initialized;
     await recorder.start().then((value) {
@@ -129,13 +130,14 @@ class _RecordUploadState extends State<RecordUpload> {
       });
 
       CallUtils cu = CallUtils();
-      await cu.addAudioFile(widget.call, url, fileName, index+1);
+      await cu.addAudioFile(widget.call, url, fileName, index);
       return true;
     } catch (error) {
       print(error);
     }
     return false;
   }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -149,13 +151,14 @@ class _RecordUploadState extends State<RecordUpload> {
               height: 40,
               width: 60,
               child: Text(
-                (widget.index+1).toString(),
+                (widget.index + 1).toString(),
                 style: GoogleFonts.montserrat(
                     fontSize: 14, color: Colors.blue[900]),
               ),
               decoration: BoxDecoration(
-                border: Border.all(color: Colors.blue[900]),
-                  color: Colors.white, borderRadius: BorderRadius.circular(10)),
+                  border: Border.all(color: Colors.blue[900]),
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10)),
             ),
             GestureDetector(
               child: Container(
@@ -185,7 +188,8 @@ class _RecordUploadState extends State<RecordUpload> {
                 setState(() {
                   _isUploading = !_isUploading;
                 });
-                await uploadToStorage(widget.user.getUser.uid, widget.fileName, widget.index)
+                await uploadToStorage(
+                        widget.user.getUser.uid, widget.fileName, widget.index)
                     .then((value) {
                   if (value) {
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -217,7 +221,6 @@ class _RecordUploadState extends State<RecordUpload> {
                         backgroundColor: Colors.white,
                       )),
             ),
-           
           ],
         ),
       ),
