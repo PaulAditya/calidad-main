@@ -10,8 +10,11 @@ class CallMethods {
       FirebaseFirestore.instance.collection("callDetails");
 
   List<dynamic> abdomen_audio = [null, null, null, null];
-  List<dynamic> heart_audio = [null, null, null, null, null];
+  List<dynamic> heart_audio = [null, null, null, null];
   List<dynamic> lungs_audio = [null, null, null, null, null, null, null, null];
+  List<dynamic> skin_image = [null, null, null];
+  List<dynamic> otoscope = [null, null, null];
+  List<dynamic> dental_video = [null, null, null];
 
   Future<bool> makeCall({Call call}) async {
     try {
@@ -30,18 +33,7 @@ class CallMethods {
       vitals["rx"] = null;
       vitals["spo2"] = null;
       await callDetailCollection.doc(docId).set(vitals);
-      abdomen_audio = ["null", "null", "null", "null"];
-      heart_audio = ["null", "null", "null", "null"];
-      lungs_audio = [
-        "null",
-        "null",
-        "null",
-        "null",
-        "null",
-        "null",
-        "null",
-        "null"
-      ];
+
       return true;
     } catch (e) {
       print(e);
@@ -62,26 +54,7 @@ class CallMethods {
     }
   }
 
-  Future<bool> addFile({
-    Call call,
-    String url,
-    String name,
-  }) async {
-    try {
-      String docId =
-          call.receiverId + "-" + call.callerId + "-" + call.channelId;
-      Map<String, String> vitals = Map();
-      vitals[name] = url;
-
-      await callDetailCollection.doc(docId).update(vitals);
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  Future<bool> addAudioFile(
-      {Call call, String url, String name, int ind}) async {
+  Future<bool> addFile({Call call, String url, String name, int ind}) async {
     try {
       String docId =
           call.receiverId + "-" + call.callerId + "-" + call.channelId;
@@ -97,6 +70,15 @@ class CallMethods {
       } else if (name == "lungs_audio") {
         lungs_audio[ind] = url;
         vitals[name] = lungs_audio;
+      } else if (name == "otoscope") {
+        otoscope[ind] = url;
+        vitals[name] = otoscope;
+      } else if (name == "skin_image") {
+        skin_image[ind] = url;
+        vitals[name] = skin_image;
+      } else if (name == "dental_video") {
+        dental_video[ind] = url;
+        vitals[name] = dental_video;
       }
 
       await callDetailCollection.doc(docId).update(vitals);
@@ -113,6 +95,9 @@ class CallMethods {
       abdomen_audio.clear();
       heart_audio.clear();
       lungs_audio.clear();
+      dental_video.clear();
+      otoscope.clear();
+      skin_image.clear();
       await callCollection.doc(call.receiverId).delete();
       return true;
     } catch (e) {

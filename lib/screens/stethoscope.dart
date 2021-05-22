@@ -18,9 +18,11 @@ class Stethoscope extends StatefulWidget {
       {Key key,
       @required this.call,
       @required this.fileName,
-      @required this.noOfFiles})
+      @required this.noOfFiles,
+      @required this.imageName})
       : super(key: key);
   final Call call;
+  final String imageName;
   final String fileName;
   final int noOfFiles;
   @override
@@ -36,16 +38,27 @@ class _StethoscopeState extends State<Stethoscope> {
           backgroundColor: Colors.blue[900],
           title: const Text('Stethoscope'),
         ),
-        body: Container(
-          padding: EdgeInsets.all(20),
-          child: Column(
-            children: List.generate(
-                widget.noOfFiles,
-                (index) => RecordUpload(
-                    user: user,
-                    index: index,
-                    fileName: widget.fileName,
-                    call: widget.call)),
+        body: SingleChildScrollView(
+          child: Container(
+            padding: EdgeInsets.all(20),
+            child: Column(
+              children: [
+                Container(
+                  height: 250,
+                  child: Image.asset('assets/${widget.imageName}'),
+                ),
+                SizedBox(height: 20),
+                Column(
+                  children: List.generate(
+                      widget.noOfFiles,
+                      (index) => RecordUpload(
+                          user: user,
+                          index: index,
+                          fileName: widget.fileName,
+                          call: widget.call)),
+                ),
+              ],
+            ),
           ),
         ));
   }
@@ -66,6 +79,7 @@ class RecordUpload extends StatefulWidget {
 class _RecordUploadState extends State<RecordUpload> {
   bool _isUploading = false;
   bool _isRecording = false;
+  bool _isSent = false;
   FlutterAudioRecorder recorder;
 
   Future<String> _localPath() async {
@@ -130,12 +144,19 @@ class _RecordUploadState extends State<RecordUpload> {
       });
 
       CallUtils cu = CallUtils();
-      await cu.addAudioFile(widget.call, url, fileName, index);
+      await cu.addFile(
+          call: widget.call, url: url, fileName: fileName, index: index);
       return true;
     } catch (error) {
       print(error);
     }
     return false;
+  }
+
+  @override
+  void initState() {
+    _isSent = false;
+    super.initState();
   }
 
   @override
@@ -150,11 +171,17 @@ class _RecordUploadState extends State<RecordUpload> {
               alignment: Alignment.center,
               height: 40,
               width: 60,
-              child: Text(
-                (widget.index + 1).toString(),
-                style: GoogleFonts.montserrat(
-                    fontSize: 14, color: Colors.blue[900]),
-              ),
+              child: _isSent
+                  ? Icon(
+                      Icons.done,
+                      color: Colors.blue[900],
+                      size: 14,
+                    )
+                  : Text(
+                      (widget.index + 1).toString(),
+                      style: GoogleFonts.montserrat(
+                          fontSize: 14, color: Colors.blue[900]),
+                    ),
               decoration: BoxDecoration(
                   border: Border.all(color: Colors.blue[900]),
                   color: Colors.white,
@@ -199,6 +226,7 @@ class _RecordUploadState extends State<RecordUpload> {
                         .showSnackBar(SnackBar(content: Text("Try Again")));
                   }
                   setState(() {
+                    _isSent = true;
                     _isUploading = !_isUploading;
                   });
                 });

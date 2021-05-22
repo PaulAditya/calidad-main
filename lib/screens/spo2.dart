@@ -13,12 +13,12 @@ class Spo2Screen extends StatefulWidget {
 
   @override
   _Spo2ScreenState createState() => _Spo2ScreenState();
-  final Call call; 
+  final Call call;
 }
 
 class _Spo2ScreenState extends State<Spo2Screen> {
   UsbDevice device;
- 
+
   int counter = 0;
   bool deviceState = false;
   List<String> _stream = [];
@@ -32,10 +32,8 @@ class _Spo2ScreenState extends State<Spo2Screen> {
   @override
   void initState() {
     super.initState();
-    
 
     usb = UsbSerial.usbEventStream.listen((UsbEvent event) async {
-     
       _ports = await dv.getPorts();
 
       setState(() {
@@ -92,20 +90,20 @@ class _Spo2ScreenState extends State<Spo2Screen> {
         _stream.add(line);
       });
 
-      Timer(Duration(seconds: 40), () {
+      Timer(Duration(seconds: 25), () {
         _subscription.cancel();
         _transaction = null;
         res = avgSpo2(_stream);
-       
-        
-        CallUtils callutils = CallUtils(); 
-        callutils.addTemperature(call:widget.call, value:res.toString(), name: "spo2");
+
+        CallUtils callutils = CallUtils();
+        callutils.addTemperature(
+            call: widget.call, value: res.toString(), name: "spo2");
         setState(() {
           _serialData.add(Text(
             res.toString(),
             style: TextStyle(color: Colors.black),
           ));
-         
+
           deviceState = !deviceState;
         });
         _stream.clear();
@@ -114,11 +112,8 @@ class _Spo2ScreenState extends State<Spo2Screen> {
   }
 
   double avgSpo2(List<String> stream) {
-    
-  
     double spo2 = 0;
 
-    
     int len = stream.length;
     print(len);
     for (int i = 1; i < len; i++) {
@@ -127,10 +122,8 @@ class _Spo2ScreenState extends State<Spo2Screen> {
       }
     }
 
-    spo2 = spo2/len;
-    
+    spo2 = spo2 / len;
 
-    
     return spo2;
   }
 
@@ -143,7 +136,6 @@ class _Spo2ScreenState extends State<Spo2Screen> {
       ),
       backgroundColor: Colors.white,
       body: Container(
-          
           height: 200,
           padding: EdgeInsets.all(20),
           width: MediaQuery.of(context).size.width,

@@ -15,7 +15,6 @@ import 'package:calidad_app/widgets/addVitalsModal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
-
 import 'package:provider/provider.dart';
 
 class CallScreen extends StatefulWidget {
@@ -34,7 +33,6 @@ class _CallScreenState extends State<CallScreen> {
   final FirebaseRepository repo = FirebaseRepository();
 
   UserProvider userProvider;
-
 
   static final _users = <int>[];
   final _infoStrings = <String>[];
@@ -298,8 +296,6 @@ class _CallScreenState extends State<CallScreen> {
 
   /// Toolbar layout
   Widget _toolbar(BuildContext ctx) {
-   
-
     return Container(
       alignment: Alignment.bottomCenter,
       padding: const EdgeInsets.symmetric(vertical: 48),
@@ -320,22 +316,22 @@ class _CallScreenState extends State<CallScreen> {
           ),
           RawMaterialButton(
             onPressed: () async {
-             
               bool res = await callMethods.endCall(
                 call: widget.call,
               );
-          
+
               if (res) {
-                 var value = await repo.getPrescription(widget.call);
-               
-                  if(value==null){
-                    Navigator.pop(context);
-                  }else{
-                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> Prescription(rx: value, call: widget.call
-                )));
-                  
+                var value = await repo.getPrescription(widget.call);
+
+                if (value == null) {
+                  Navigator.pop(context);
+                } else {
+                  Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              Prescription(rx: value, call: widget.call)));
                 }
-                
               }
             },
             child: Icon(
@@ -363,11 +359,29 @@ class _CallScreenState extends State<CallScreen> {
           ),
           RawMaterialButton(
             onPressed: () async {
-              showModalBottomSheet(
-                  barrierColor: Colors.black.withAlpha(1),
-                  backgroundColor: Colors.transparent,
-                  context: context,
-                  builder: (context) => AddVitalModal(call: widget.call));
+              await repo.getPrescription(widget.call).then((value) {
+                if (value != null) {
+                  showModalBottomSheet(
+                      barrierColor: Colors.black.withAlpha(1),
+                      backgroundColor: Colors.transparent,
+                      context: context,
+                      builder: (context) => AddVitalModal(
+                            call: widget.call,
+                            rx: true,
+                            pres: value,
+                          ));
+                } else {
+                  showModalBottomSheet(
+                      barrierColor: Colors.black.withAlpha(1),
+                      backgroundColor: Colors.transparent,
+                      context: context,
+                      builder: (context) => AddVitalModal(
+                            pres: null,
+                            call: widget.call,
+                            rx: false,
+                          ));
+                }
+              });
             },
             child: Icon(
               Icons.pending_actions_rounded,
@@ -391,7 +405,7 @@ class _CallScreenState extends State<CallScreen> {
     // destroy sdk
     AgoraRtcEngine.leaveChannel();
     AgoraRtcEngine.destroy();
-   
+
     super.dispose();
   }
 

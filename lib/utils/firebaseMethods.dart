@@ -12,7 +12,6 @@ class FirebaseMethods {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   GoogleSignIn _googleSignIn = GoogleSignIn();
   static final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  
 
   static final CollectionReference _doctorCollection =
       _firestore.collection("doctors");
@@ -43,15 +42,13 @@ class FirebaseMethods {
     return user;
   }
 
-  
-
   Future<Users> signUpWithEmailPassword(String email, String password) async {
-    Users user; 
+    Users user;
     try {
       UserCredential cred = await _auth.createUserWithEmailAndPassword(
           email: email, password: password);
-      
-      User firebaseUser= cred.user;
+
+      User firebaseUser = cred.user;
       user = users.fromUser(firebaseUser);
       return user;
     } catch (e) {
@@ -88,29 +85,24 @@ class FirebaseMethods {
   Future<String> getPrescription(Call call) async {
     String rx;
     CollectionReference callDetailCollection =
-      FirebaseFirestore.instance.collection("callDetails");
-   
+        FirebaseFirestore.instance.collection("callDetails");
+
     String docId = "${call.receiverId}-${call.callerId}-${call.channelId}";
     var value = await callDetailCollection.doc(docId).get();
-      CallDetails details = CallDetails.fromMap(value.data());
-      rx = details.rx;
-      print("inside met $rx");
-      return rx;
-    
-    
+    CallDetails details = CallDetails.fromMap(value.data());
+    rx = details.rx;
+
+    return rx;
   }
 
   Future<List<Doctor>> getDoctors() async {
     List<Doctor> doctors = new List<Doctor>();
     QuerySnapshot qs = await _doctorCollection.get();
-    
 
     for (var i = 0; i < qs.docs.length; i++) {
-     
       doctors.add(Doctor.fromMap(qs.docs[i].data()));
-     
     }
-    
+
     return doctors;
   }
 }
