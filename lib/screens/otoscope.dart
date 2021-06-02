@@ -77,7 +77,7 @@ class _OtoscopeState extends State<Otoscope> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: List.generate(3, (index) {
+                      children: List.generate(5, (index) {
                         return Upload(
                             index: index,
                             fileName: widget.fileName,

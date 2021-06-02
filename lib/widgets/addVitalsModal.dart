@@ -110,6 +110,16 @@ class AddVitalModal extends StatelessWidget {
                       gallery: true,
                       recorder: false,
                     )),
+                DeviceCard(
+                    image: 'assets/eye.png',
+                    title: 'Eye',
+                    page: Otoscope(
+                      call: call,
+                      fileName: "eye_image",
+                      camera: true,
+                      gallery: true,
+                      recorder: false,
+                    )),
               ],
             ),
           ),

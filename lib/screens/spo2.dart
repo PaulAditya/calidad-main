@@ -90,7 +90,7 @@ class _Spo2ScreenState extends State<Spo2Screen> {
         _stream.add(line);
       });
 
-      Timer(Duration(seconds: 25), () {
+      Timer(Duration(seconds: 30), () {
         _subscription.cancel();
         _transaction = null;
         res = avgSpo2(_stream);
@@ -113,16 +113,7 @@ class _Spo2ScreenState extends State<Spo2Screen> {
 
   double avgSpo2(List<String> stream) {
     double spo2 = 0;
-
-    int len = stream.length;
-    print(len);
-    for (int i = 1; i < len; i++) {
-      if (stream[i].length > 0) {
-        spo2 += double.parse(stream[i]);
-      }
-    }
-
-    spo2 = spo2 / len;
+    spo2 = double.parse(stream.last);
 
     return spo2;
   }
