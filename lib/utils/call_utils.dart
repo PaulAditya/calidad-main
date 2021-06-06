@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:calidad_app/model/call.dart';
 import 'package:calidad_app/model/doctor.dart';
+import 'package:calidad_app/model/patient.dart';
 import 'package:calidad_app/model/user.dart';
 import 'package:calidad_app/screens/call_screen.dart';
 import 'package:calidad_app/utils/call_methods.dart';
@@ -11,20 +12,23 @@ import 'package:flutter/material.dart';
 class CallUtils {
   static final CallMethods callMethods = CallMethods();
   static dial(
-      {@required Users patient, @required Doctor doctor, context}) async {
+      {@required Users user,
+      @required Doctor doctor,
+      @required Map patient,
+      context}) async {
     Call call = Call(
-      callerId: patient.uid,
-      callerName: patient.username,
-      callerPic: patient.profilePhoto,
-      receiverId: doctor.uid,
-      receiverName: doctor.name,
-      channelId: Random().nextInt(1000).toString(),
-    );
+        callerId: user.uid,
+        callerName: user.username,
+        callerPic: user.profilePhoto,
+        receiverId: doctor.uid,
+        receiverName: doctor.name,
+        channelId: Random().nextInt(1000).toString(),
+        patient: patient);
 
     bool callMade = await callMethods.makeCall(call: call);
 
     if (callMade) {
-      Navigator.push(
+      Navigator.pushReplacement(
           context,
           MaterialPageRoute(
             builder: (context) => CallScreen(call: call),

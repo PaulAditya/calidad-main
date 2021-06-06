@@ -1,4 +1,5 @@
 import 'package:calidad_app/model/doctor.dart';
+import 'package:calidad_app/model/patient.dart';
 import 'package:calidad_app/model/user.dart';
 import 'package:calidad_app/utils/firebaseMethods.dart';
 
@@ -19,4 +20,16 @@ class FirebaseRepository {
 
   Future<Users> signUpWithEmailPassword(String email, String password) =>
       _firebaseMethods.signUpWithEmailPassword(email, password);
+
+  Future<bool> authenticateUser(Users user) =>
+      _firebaseMethods.authenticateUser(user);
+
+  Future<bool> addDataToDb(Users currentUser) =>
+      _firebaseMethods.addDataToDb(currentUser);
+
+  Future<bool> addPatient(Patient patient, String uid) =>
+      _firebaseMethods.addPatient(patient, uid);
+
+  Future<List<Map>> getPatients(String uid) =>
+      _firebaseMethods.getPatients(uid);
 }

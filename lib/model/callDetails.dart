@@ -1,13 +1,14 @@
 class CallDetails {
-  String otoscope;
+  List otoscope;
   String temperature;
   List heartAudio;
   List lungsAudio;
   List abdomenAudio;
-  String skinImage;
-  String dentalVideo;
+  List skinImage;
+  List dentalVideo;
   String spo2;
   String rx;
+  Map patientDetails;
 
   CallDetails(
       {this.skinImage,
@@ -18,9 +19,10 @@ class CallDetails {
       this.abdomenAudio,
       this.spo2,
       this.temperature,
-      this.rx});
+      this.rx,
+      this.patientDetails});
 
-  CallDetails.fromMap(Map<String,dynamic> callDetails) {
+  CallDetails.fromMap(Map<String, dynamic> callDetails) {
     this.otoscope = callDetails['otoscope'];
     this.heartAudio = callDetails['heart_audio'];
     this.temperature = callDetails['temperature'];
@@ -30,5 +32,6 @@ class CallDetails {
     this.spo2 = callDetails['spo2'];
     this.skinImage = callDetails['skin_image'];
     this.dentalVideo = callDetails['dental_video'];
+    this.patientDetails = callDetails['patient_details'];
   }
 }

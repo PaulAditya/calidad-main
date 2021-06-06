@@ -12,10 +12,10 @@ class CallMethods {
   List<dynamic> abdomen_audio = [null, null, null, null];
   List<dynamic> heart_audio = [null, null, null, null];
   List<dynamic> lungs_audio = [null, null, null, null, null, null, null, null];
-  List<dynamic> skin_image = [null, null, null, null, null];
-  List<dynamic> otoscope = [null, null, null, null, null];
-  List<dynamic> dental_video = [null, null, null, null, null];
-  List<dynamic> eye_image = [null, null, null, null, null];
+  List<dynamic> skin_image = [];
+  List<dynamic> otoscope = [];
+  List<dynamic> dental_video = [];
+  List<dynamic> eye_image = [];
 
   Future<bool> makeCall({Call call}) async {
     try {
@@ -34,6 +34,7 @@ class CallMethods {
       vitals["dental_video"] = null;
       vitals["rx"] = null;
       vitals["spo2"] = null;
+      vitals["patient_details"] = call.patient;
       await callDetailCollection.doc(docId).set(vitals);
 
       return true;
@@ -73,16 +74,16 @@ class CallMethods {
         lungs_audio[ind] = url;
         vitals[name] = lungs_audio;
       } else if (name == "otoscope") {
-        otoscope[ind] = url;
+        otoscope.add(url);
         vitals[name] = otoscope;
       } else if (name == "skin_image") {
-        skin_image[ind] = url;
+        skin_image.add(url);
         vitals[name] = skin_image;
       } else if (name == "dental_video") {
-        dental_video[ind] = url;
+        dental_video.add(url);
         vitals[name] = dental_video;
       } else if (name == "eye_image") {
-        eye_image[ind] = url;
+        eye_image.add(url);
         vitals[name] = eye_image;
       }
 

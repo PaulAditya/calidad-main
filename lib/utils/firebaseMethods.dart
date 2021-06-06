@@ -1,6 +1,7 @@
 import 'package:calidad_app/model/call.dart';
 import 'package:calidad_app/model/callDetails.dart';
 import 'package:calidad_app/model/doctor.dart';
+import 'package:calidad_app/model/patient.dart';
 import 'package:calidad_app/model/user.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -15,6 +16,9 @@ class FirebaseMethods {
 
   static final CollectionReference _doctorCollection =
       _firestore.collection("doctors");
+
+  static final CollectionReference _userCollection =
+      _firestore.collection("users");
   Users users = Users();
 
   Future<Users> getCurrentUser() async {
@@ -57,6 +61,68 @@ class FirebaseMethods {
     return user;
   }
 
+  Future<bool> authenticateUser(Users user) async {
+    try {
+      QuerySnapshot result =
+          await _userCollection.where("email", isEqualTo: user.email).get();
+
+      final List<DocumentSnapshot> docs = result.docs;
+
+      return docs.length == 0 ? false : true;
+    } catch (e) {
+      print(e);
+    }
+    return false;
+  }
+
+  Future<bool> addDataToDb(Users currentUser) async {
+    try {
+      Users user = Users(
+          uid: currentUser.uid,
+          email: currentUser.email,
+          profilePhoto: currentUser.profilePhoto,
+          username: currentUser.username,
+          patients: <Map>[]);
+
+      _userCollection.doc(currentUser.uid).set(users.toMap(user));
+      return true;
+    } catch (e) {
+      print(e);
+    }
+    return false;
+  }
+
+  Future<bool> addPatient(Patient patient, String uid) async {
+    try {
+      DocumentSnapshot userDoc = await _userCollection.doc(uid).get();
+      Users user = Users.fromMap(userDoc.data());
+
+      List patients = user.patients;
+
+      patients.add(patient.toJson());
+
+      _userCollection.doc(uid).update({'patients': patients});
+      return true;
+    } catch (e) {
+      print(e);
+    }
+    return false;
+  }
+
+  Future<List<Map>> getPatients(String uid) async {
+    try {
+      DocumentSnapshot doc = await _userCollection.doc(uid).get();
+
+      Users user = Users.fromMap(doc.data());
+
+      List<Map> patients = user.patients;
+      return patients;
+    } catch (e) {
+      print(e);
+    }
+    return null;
+  }
+
   Future<Users> signInWithGoogle() async {
     Users user;
     try {
@@ -89,6 +155,7 @@ class FirebaseMethods {
 
     String docId = "${call.receiverId}-${call.callerId}-${call.channelId}";
     var value = await callDetailCollection.doc(docId).get();
+    print(value.data());
     CallDetails details = CallDetails.fromMap(value.data());
     rx = details.rx;
 

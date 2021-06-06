@@ -1,6 +1,7 @@
 import 'package:calidad_app/model/doctor.dart';
 import 'package:calidad_app/model/user.dart';
 import 'package:calidad_app/provider/userProvider.dart';
+import 'package:calidad_app/screens/patients.dart';
 import 'package:calidad_app/utils/call_utils.dart';
 import 'package:calidad_app/utils/permissions.dart';
 import 'package:flutter/material.dart';
@@ -27,7 +28,8 @@ class _DoctorDetailsState extends State<DoctorDetails> {
   @override
   Widget build(BuildContext context) {
     print(widget.doctor.uid);
-    final UserProvider userProvider = Provider.of<UserProvider>(context, listen: true);
+    final UserProvider userProvider =
+        Provider.of<UserProvider>(context, listen: true);
     Users user = userProvider.getUser;
     return Scaffold(
         appBar: AppBar(
@@ -85,7 +87,6 @@ class _DoctorDetailsState extends State<DoctorDetails> {
                       Container(
                         padding: EdgeInsets.all(20),
                         width: MediaQuery.of(context).size.width,
-                        
                         decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(20),
@@ -105,8 +106,7 @@ class _DoctorDetailsState extends State<DoctorDetails> {
                               child: Text(
                                 "Dr. ${widget.doctor.name}",
                                 style: GoogleFonts.montserrat(
-                                    fontSize: 26,
-                                    fontWeight: FontWeight.w500),
+                                    fontSize: 26, fontWeight: FontWeight.w500),
                               ),
                             ),
                             Center(
@@ -193,14 +193,15 @@ class _DoctorDetailsState extends State<DoctorDetails> {
                       child: GestureDetector(
                         onTap: () async {
                           if (widget.doctor.isAvailable) {
-                           
                             if (await Permissions
                                 .cameraAndMicrophonePermissionsGranted()) {
-                              
-                              
-                              await CallUtils.dial(
-                                      patient: user, doctor: widget.doctor, context: context);
-                                 
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => Patients(
+                                            doctor: widget.doctor,
+                                            user: user,
+                                          )));
                             }
                           }
                         },
