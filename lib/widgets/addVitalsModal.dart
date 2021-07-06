@@ -57,6 +57,7 @@ class AddVitalModal extends StatelessWidget {
                     image: 'assets/otoscope.png',
                     title: 'Otoscope',
                     page: Otoscope(
+                      pageName: "Otoscope",
                       call: call,
                       fileName: "otoscope",
                       camera: false,
@@ -67,6 +68,7 @@ class AddVitalModal extends StatelessWidget {
                     image: 'assets/dental.png',
                     title: 'Dental',
                     page: Otoscope(
+                      pageName: "Dental",
                       call: call,
                       fileName: "dental_video",
                       camera: false,
@@ -104,8 +106,31 @@ class AddVitalModal extends StatelessWidget {
                     image: 'assets/dermis.png',
                     title: 'Skin',
                     page: Otoscope(
+                      pageName: "Dermatological Exam",
                       call: call,
                       fileName: "skin_image",
+                      camera: true,
+                      gallery: true,
+                      recorder: false,
+                    )),
+                DeviceCard(
+                    image: 'assets/bp_reading.png',
+                    title: 'Blood Pressure',
+                    page: Otoscope(
+                      pageName: "Blood Pressure",
+                      call: call,
+                      fileName: "bp_reading",
+                      camera: true,
+                      gallery: true,
+                      recorder: false,
+                    )),
+                DeviceCard(
+                    image: 'assets/file.png',
+                    title: 'Documents',
+                    page: Otoscope(
+                      pageName: "Documents",
+                      call: call,
+                      fileName: "xtra_files",
                       camera: true,
                       gallery: true,
                       recorder: false,
@@ -114,6 +139,7 @@ class AddVitalModal extends StatelessWidget {
                     image: 'assets/eye.png',
                     title: 'Eye',
                     page: Otoscope(
+                      pageName: "Opthalmic Exam",
                       call: call,
                       fileName: "eye_image",
                       camera: true,

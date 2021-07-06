@@ -1,3 +1,4 @@
+import 'package:calidad_app/model/doctor.dart';
 import 'package:calidad_app/model/patient.dart';
 import 'package:calidad_app/model/user.dart';
 import 'package:calidad_app/provider/userProvider.dart';
@@ -8,7 +9,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 class PatientForm extends StatefulWidget {
-  const PatientForm({Key key}) : super(key: key);
+  final Users user;
+  final Doctor doctor;
+  const PatientForm({Key key, this.user, this.doctor}) : super(key: key);
 
   @override
   _PatientFormState createState() => _PatientFormState();
@@ -22,6 +25,7 @@ class _PatientFormState extends State<PatientForm> {
   TextEditingController _name = TextEditingController();
   TextEditingController _age = TextEditingController();
   TextEditingController _weight = TextEditingController();
+  TextEditingController _height = TextEditingController();
   bool _isLoading;
 
   @override
@@ -39,7 +43,10 @@ class _PatientFormState extends State<PatientForm> {
     return WillPopScope(
       onWillPop: () {
         Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => Patients()));
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+                    Patients(user: widget.user, doctor: widget.doctor)));
         return;
       },
       child: Scaffold(
@@ -113,26 +120,58 @@ class _PatientFormState extends State<PatientForm> {
                       focusedBorder: UnderlineInputBorder(
                           borderSide: BorderSide(color: Colors.blueAccent))),
                 ),
+                SizedBox(height: 10.0),
+                TextField(
+                  keyboardType: TextInputType.number,
+                  controller: _height,
+                  decoration: InputDecoration(
+                      labelText: 'Height',
+                      labelStyle: GoogleFonts.montserrat(
+                          fontWeight: FontWeight.bold, color: Colors.grey),
+                      focusedBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: Colors.blueAccent))),
+                ),
                 SizedBox(height: 40.0),
                 Container(
                   alignment: Alignment.bottomCenter,
                   child: GestureDetector(
-                    onTap: () {
+                    onTap: () async {
+                      print(widget.user);
                       setState(() {
                         _isLoading = true;
                       });
-                      Patient p = Patient(_name.text, _age.text, _weight.text,
+                      List patients = await _repo.getPatients(user.uid);
+                      var i;
+                      if (patients == null) {
+                        i = 0;
+                      } else {
+                        i = patients.length;
+                      }
+                      print(_height.text);
+                      Patient p = Patient(
+                          i.toString(),
+                          _name.text,
+                          _age.text,
+                          _weight.text,
+                          _height.text,
                           _gender.toString().split('.').last);
                       _repo.addPatient(p, user.uid).then((value) {
                         _name.clear();
                         _age.clear();
                         _weight.clear();
+                        _height.clear();
                         setState(() {
                           _isLoading = false;
                         });
                         if (value) {
                           ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(content: Text("Uploaded Succesfully")));
+                          Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => Patients(
+                                      user: widget.user,
+                                      doctor: widget.doctor)));
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(content: Text("Try Again")));

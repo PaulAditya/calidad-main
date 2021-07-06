@@ -16,6 +16,7 @@ class CallMethods {
   List<dynamic> otoscope = [];
   List<dynamic> dental_video = [];
   List<dynamic> eye_image = [];
+  List<dynamic> xtra_files = [];
 
   Future<bool> makeCall({Call call}) async {
     try {
@@ -24,6 +25,9 @@ class CallMethods {
           call.receiverId + "-" + call.callerId + "-" + call.channelId;
       await callCollection.doc(call.receiverId).set(map);
       Map<String, dynamic> vitals = Map<String, dynamic>();
+      vitals["doctor"] = call.receiverName;
+      vitals["patient_id"] = call.callerId;
+      vitals["user_id"] = call.userId;
       vitals["temperature"] = null;
       vitals["otoscope"] = null;
       vitals["heart_audio"] = null;
@@ -34,7 +38,12 @@ class CallMethods {
       vitals["dental_video"] = null;
       vitals["rx"] = null;
       vitals["spo2"] = null;
+      vitals["bp_reading"] = null;
       vitals["patient_details"] = call.patient;
+      vitals["temperature_image"] = null;
+      vitals["spo2_image"] = null;
+      vitals["xtra_files"] = null;
+
       await callDetailCollection.doc(docId).set(vitals);
 
       return true;
@@ -85,6 +94,18 @@ class CallMethods {
       } else if (name == "eye_image") {
         eye_image.add(url);
         vitals[name] = eye_image;
+      } else if (name == "bp_reading") {
+        String bpReading = url;
+        vitals[name] = bpReading;
+      } else if (name == "spo2_image") {
+        String image = url;
+        vitals[name] = image;
+      } else if (name == "temperature_image") {
+        String temp = url;
+        vitals[name] = temp;
+      } else if (name == "xtra_files") {
+        xtra_files.add(url);
+        vitals[name] = xtra_files;
       }
 
       await callDetailCollection.doc(docId).update(vitals);
@@ -104,6 +125,8 @@ class CallMethods {
       dental_video.clear();
       otoscope.clear();
       skin_image.clear();
+      xtra_files.clear();
+
       await callCollection.doc(call.receiverId).delete();
       return true;
     } catch (e) {

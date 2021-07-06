@@ -1,7 +1,10 @@
+import 'package:calidad_app/model/appointmentDetails.dart';
+import 'package:calidad_app/model/call.dart';
 import 'package:calidad_app/model/doctor.dart';
 import 'package:calidad_app/model/patient.dart';
 import 'package:calidad_app/model/user.dart';
 import 'package:calidad_app/utils/firebaseMethods.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class FirebaseRepository {
   FirebaseMethods _firebaseMethods = FirebaseMethods();
@@ -32,4 +35,21 @@ class FirebaseRepository {
 
   Future<List<Map>> getPatients(String uid) =>
       _firebaseMethods.getPatients(uid);
+
+  Future<List<AppointmentDetails>> getHistory(String uid) =>
+      _firebaseMethods.getHistory(uid);
+
+  Future<bool> uploadToStorage(Map map, Call call, String fileName) =>
+      _firebaseMethods.uploadToStorage(map, call, fileName);
+
+  Future<Map> getUploadTask(
+    String uid,
+    bool camera,
+    bool galleryCam,
+  ) =>
+      _firebaseMethods.getUploadTask(
+        uid,
+        camera,
+        galleryCam,
+      );
 }

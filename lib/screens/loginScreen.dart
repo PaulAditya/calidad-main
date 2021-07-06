@@ -17,7 +17,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     var height = MediaQuery.of(context).size.height;
-    var width = MediaQuery.of(context).size.width;
+
     TextEditingController _email = TextEditingController();
     TextEditingController _password = TextEditingController();
     GlobalKey<FormState> _formkey = GlobalKey<FormState>();

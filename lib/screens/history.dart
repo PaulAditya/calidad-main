@@ -1,40 +1,27 @@
-import 'package:calidad_app/model/doctor.dart';
-
+import 'package:calidad_app/model/appointmentDetails.dart';
 import 'package:calidad_app/model/user.dart';
 import 'package:calidad_app/provider/userProvider.dart';
-import 'package:calidad_app/screens/patientForm.dart';
-import 'package:calidad_app/utils/call_utils.dart';
+
 import 'package:calidad_app/utils/firebaseRepository.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
-class Patients extends StatefulWidget {
-  final Users user;
-  final Doctor doctor;
-
-  const Patients({
-    Key key,
-    this.user,
-    this.doctor,
-  }) : super(key: key);
+class History extends StatefulWidget {
+  const History({Key key}) : super(key: key);
 
   @override
-  _PatientsState createState() => _PatientsState();
+  _HistoryState createState() => _HistoryState();
 }
 
-class _PatientsState extends State<Patients> {
-  FirebaseRepository _repo = FirebaseRepository();
-  Users user;
+class _HistoryState extends State<History> {
+  bool _isLoading = false;
   UserProvider userProvider;
-  List<Map> patients;
-  bool _isLoading;
-
-  Future<List<Map>> getPatients(String uid) async {
-    return await _repo.getPatients(uid);
-  }
-
+  Users user;
+  FirebaseRepository _repo = FirebaseRepository();
+  List<AppointmentDetails> history;
   @override
   void initState() {
     super.initState();
@@ -44,21 +31,19 @@ class _PatientsState extends State<Patients> {
 
       await userProvider.refreshUser();
       user = userProvider.getUser;
-      patients = await getPatients(user.uid).then((value) {
+      history = await _repo.getHistory(user.uid).then((value) {
         setState(() {
           _isLoading = false;
         });
-
         return value;
       });
     });
   }
 
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Patients"),
+        title: Text("History"),
         backgroundColor: Colors.blue[900],
       ),
       body: Container(
@@ -66,33 +51,16 @@ class _PatientsState extends State<Patients> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              Container(
-                  height: 100,
-                  child: GestureDetector(
-                    onTap: () {
-                      Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => PatientForm(
-                                  user: widget.user, doctor: widget.doctor)));
-                    },
-                    child: Icon(
-                      Icons.add_circle_outline_rounded,
-                      size: 40,
-                      color: Colors.blue[900],
-                    ),
-                  )),
-              SizedBox(height: 10),
               _isLoading
                   ? Center(child: CircularProgressIndicator())
-                  : patients.length == 0
+                  : history == null
                       ? Center(
-                          child: Text("No Patients Added",
+                          child: Text("No History Available",
                               style: GoogleFonts.montserrat(fontSize: 24)))
                       : ListView.builder(
                           physics: NeverScrollableScrollPhysics(),
                           shrinkWrap: true,
-                          itemCount: patients.length,
+                          itemCount: history.length,
                           itemBuilder: (context, index) {
                             return Container(
                               margin: EdgeInsets.only(bottom: 10),
@@ -102,23 +70,12 @@ class _PatientsState extends State<Patients> {
                                     color: Colors.black,
                                   )),
                               child: ListTile(
-                                onTap: () async {
-                                  print(widget.user);
-                                  if (widget.user != null &&
-                                      widget.doctor != null) {
-                                    await CallUtils.dial(
-                                        user: user,
-                                        doctor: widget.doctor,
-                                        patient: patients[index],
-                                        context: context);
-                                  }
-                                },
                                 title: Text(
-                                  "Name - ${patients[index]['name']}",
+                                  "Patient - ${history[index].patientDetails.name}",
                                   style: GoogleFonts.montserrat(fontSize: 18),
                                 ),
                                 subtitle: Text(
-                                  "Age - ${patients[index]['age']}",
+                                  "Doctor - ${history[index].doctor}",
                                   style: GoogleFonts.montserrat(fontSize: 16),
                                 ),
                               ),

@@ -18,13 +18,11 @@ class DoctorCard extends StatelessWidget {
     var width = MediaQuery.of(context).size.width;
     return GestureDetector(
       onTap: () => Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => Consumer<UserProvider>(builder: (context, user, _)=> DoctorDetails(doctor: doctor))
-            
-            
-            ),
-          ),
+        context,
+        MaterialPageRoute(
+            builder: (context) => Consumer<UserProvider>(
+                builder: (context, user, _) => DoctorDetails(doctor: doctor))),
+      ),
       child: Container(
         height: 100,
         width: width,
@@ -72,7 +70,7 @@ class DoctorCard extends StatelessWidget {
                             style: GoogleFonts.montserrat(
                                 color: Colors.blueGrey[900],
                                 fontWeight: FontWeight.w500,
-                                fontSize: 16)),
+                                fontSize: 14)),
                         SizedBox(height: 10),
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.center,
@@ -90,19 +88,19 @@ class DoctorCard extends StatelessWidget {
                         ),
                       ],
                     ),
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.star,
-                          color: Colors.yellow,
-                          size: 16,
-                        ),
-                        SizedBox(width: 5),
-                        Text(doctor.rating,
-                            style: GoogleFonts.montserrat(
-                                fontWeight: FontWeight.bold, fontSize: 16)),
-                      ],
-                    ),
+                    // Row(
+                    //   children: [
+                    //     Icon(
+                    //       Icons.star,
+                    //       color: Colors.yellow,
+                    //       size: 16,
+                    //     ),
+                    //     SizedBox(width: 5),
+                    //     Text(doctor.rating,
+                    //         style: GoogleFonts.montserrat(
+                    //             fontWeight: FontWeight.bold, fontSize: 16)),
+                    //   ],
+                    // ),
                   ],
                 ),
               ),

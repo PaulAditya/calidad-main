@@ -2,9 +2,14 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:calidad_app/model/call.dart';
+import 'package:calidad_app/model/user.dart';
+import 'package:calidad_app/provider/userProvider.dart';
 import 'package:calidad_app/utils/call_utils.dart';
 import 'package:calidad_app/utils/device_utils.dart';
+import 'package:calidad_app/utils/firebaseRepository.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:usb_serial/transaction.dart';
 import 'package:usb_serial/usb_serial.dart';
 
@@ -28,6 +33,9 @@ class _Spo2ScreenState extends State<Spo2Screen> {
   StreamSubscription usb;
 
   DeviceUtils dv = DeviceUtils();
+  bool _isLoadingCamera = false;
+  double _progress;
+  bool _uploading;
 
   @override
   void initState() {
@@ -120,51 +128,141 @@ class _Spo2ScreenState extends State<Spo2Screen> {
 
   @override
   Widget build(BuildContext context) {
+    UserProvider up = Provider.of<UserProvider>(context, listen: false);
+    Users user = up.getUser;
+    FirebaseRepository _repo = FirebaseRepository();
+    UploadTask uploadTask;
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.blue[900],
         title: Text("SpO2"),
       ),
       backgroundColor: Colors.white,
-      body: Container(
-          height: 200,
-          padding: EdgeInsets.all(20),
-          width: MediaQuery.of(context).size.width,
-          child: isLoading
-              ? CircularProgressIndicator()
-              : device != null
-                  ? Container(
-                      child: Column(
-                        children: [
-                          Text("Device Connected"),
-                          SizedBox(height: 20),
-                          Container(
-                              margin: EdgeInsets.only(bottom: 10),
-                              child: !deviceState
-                                  ? ElevatedButton(
-                                      child: Text("Start"),
-                                      onPressed: () async {
-                                        setState(() {
-                                          _serialData.clear();
-                                          deviceState = !deviceState;
-                                        });
-                                        connect(device);
-                                      },
-                                    )
-                                  : Container(
-                                      height: 20,
-                                      width: 20,
-                                      child: CircularProgressIndicator(),
-                                    )),
-                          ..._serialData
-                        ],
-                      ),
-                    )
-                  : Center(
-                      child: Text(
-                      "No Device Connected",
-                      style: TextStyle(color: Colors.black, fontSize: 20),
-                    ))),
+      body: Stack(
+        children: [
+          Column(
+            children: [
+              Container(
+                  height: 200,
+                  padding: EdgeInsets.all(20),
+                  width: MediaQuery.of(context).size.width,
+                  child: isLoading
+                      ? CircularProgressIndicator()
+                      : device != null
+                          ? Container(
+                              child: Column(
+                                children: [
+                                  Text("Device Connected"),
+                                  SizedBox(height: 20),
+                                  Container(
+                                      margin: EdgeInsets.only(bottom: 10),
+                                      child: !deviceState
+                                          ? ElevatedButton(
+                                              child: Text("Start"),
+                                              onPressed: () async {
+                                                setState(() {
+                                                  _serialData.clear();
+                                                  deviceState = !deviceState;
+                                                });
+                                                connect(device);
+                                              },
+                                            )
+                                          : Container(
+                                              height: 20,
+                                              width: 20,
+                                              child:
+                                                  CircularProgressIndicator(),
+                                            )),
+                                  ..._serialData
+                                ],
+                              ),
+                            )
+                          : Center(
+                              child: Text(
+                              "No Device Connected",
+                              style:
+                                  TextStyle(color: Colors.black, fontSize: 20),
+                            ))),
+              SizedBox(height: 30),
+              GestureDetector(
+                onTap: () async {
+                  setState(() {
+                    _isLoadingCamera = !_isLoadingCamera;
+                  });
+                  Map map = await _repo
+                      .getUploadTask(user.uid, true, false)
+                      .then((value) {
+                    setState(() {
+                      _uploading = true;
+                    });
+                    return value;
+                  });
+                  uploadTask = map["uploadTask"];
+                  uploadTask.snapshotEvents.listen((event) {
+                    setState(() {
+                      _progress =
+                          ((((event.bytesTransferred.toDouble() / 1024.0) /
+                                          1000) /
+                                      (event.totalBytes.toDouble() / 1024.0) /
+                                      1000) *
+                                  100)
+                              .toDouble();
+                    });
+                  });
+                  await _repo
+                      .uploadToStorage(
+                    map,
+                    widget.call,
+                    "spo2_image",
+                  )
+                      .then((value) {
+                    if (value) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text("Uploaded Succesfully")));
+                    } else {
+                      ScaffoldMessenger.of(context)
+                          .showSnackBar(SnackBar(content: Text("Try Again")));
+                    }
+                    setState(() {
+                      _uploading = false;
+                      _isLoadingCamera = !_isLoadingCamera;
+                    });
+                  });
+                },
+                child: !_isLoadingCamera
+                    ? Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          color: Colors.blue[900],
+                        ),
+                        height: 40,
+                        width: 60,
+                        child: Icon(
+                          Icons.camera,
+                          color: Colors.white,
+                        ))
+                    : Container(
+                        height: 40,
+                        width: 40,
+                        padding: EdgeInsets.all(10),
+                        child: CircularProgressIndicator(
+                          backgroundColor: Colors.white,
+                        )),
+              )
+            ],
+          ),
+          _uploading
+              ? Container(
+                  color: Colors.transparent,
+                  child: Center(
+                    child: CircularProgressIndicator(
+                      value: _progress,
+                    ),
+                  ),
+                )
+              : Container()
+        ],
+      ),
     );
   }
 }

@@ -20,7 +20,7 @@ class _SignupPageState extends State<SignupPage> {
   @override
   Widget build(BuildContext context) {
     var height = MediaQuery.of(context).size.height;
-    var width = MediaQuery.of(context).size.width;
+
     return new Scaffold(
         body: SingleChildScrollView(
       child: Form(

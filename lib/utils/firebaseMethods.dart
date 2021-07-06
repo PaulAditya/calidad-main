@@ -1,13 +1,19 @@
+import 'dart:io';
+
+import 'package:calidad_app/model/appointmentDetails.dart';
 import 'package:calidad_app/model/call.dart';
 import 'package:calidad_app/model/callDetails.dart';
 import 'package:calidad_app/model/doctor.dart';
 import 'package:calidad_app/model/patient.dart';
 import 'package:calidad_app/model/user.dart';
+import 'package:calidad_app/utils/call_utils.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:image_picker/image_picker.dart';
 
 class FirebaseMethods {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -19,6 +25,9 @@ class FirebaseMethods {
 
   static final CollectionReference _userCollection =
       _firestore.collection("users");
+
+  static final CollectionReference _callDetailsCollection =
+      _firestore.collection("callDetails");
   Users users = Users();
 
   Future<Users> getCurrentUser() async {
@@ -155,7 +164,7 @@ class FirebaseMethods {
 
     String docId = "${call.receiverId}-${call.callerId}-${call.channelId}";
     var value = await callDetailCollection.doc(docId).get();
-    print(value.data());
+
     CallDetails details = CallDetails.fromMap(value.data());
     rx = details.rx;
 
@@ -171,5 +180,136 @@ class FirebaseMethods {
     }
 
     return doctors;
+  }
+
+  Future<List<AppointmentDetails>> getHistory(String uid) async {
+    QuerySnapshot qs =
+        await _callDetailsCollection.where("user_id", isEqualTo: uid).get();
+    List<DocumentSnapshot> docs = qs.docs;
+    List<AppointmentDetails> app_details = new List();
+    for (var i = 0; i < docs.length; i++) {
+      app_details.add(AppointmentDetails.fromMap(docs[i].data()));
+    }
+
+    return app_details;
+  }
+
+  Future<bool> uploadToStorage(Map map, Call call, String fileName) async {
+    try {
+      UploadTask uploadTask = map["uploadTask"];
+      Reference ref = map["ref"];
+      String url = await uploadTask.then((e) async {
+        String u = await ref.getDownloadURL();
+
+        return u;
+      });
+
+      CallUtils cu = CallUtils();
+      await cu.addFile(
+        call: call,
+        url: url,
+        fileName: fileName,
+      );
+      return true;
+    } catch (e) {
+      print(e);
+    }
+    return false;
+  }
+
+  Future<Map> getUploadTask(
+    String uid,
+    bool camera,
+    bool galleryCam,
+  ) async {
+    try {
+      final DateTime now = DateTime.now();
+      final int millSeconds = now.millisecondsSinceEpoch;
+      final String month = now.month.toString();
+      final String date = now.day.toString();
+      final String storageId = (millSeconds.toString() + uid);
+      final String today = ('$month-$date');
+      ImagePicker img = ImagePicker();
+      UploadTask uploadTask;
+      Reference ref;
+      Map map = new Map();
+
+      if (camera) {
+        return img.getImage(source: ImageSource.camera).then((value) {
+          if (value != null) {
+            File file = File(value.path);
+
+            ref = FirebaseStorage.instance
+                .ref()
+                .child("image")
+                .child(today)
+                .child(storageId);
+            uploadTask =
+                ref.putFile(file, SettableMetadata(contentType: 'image/jpeg'));
+            map["uploadTask"] = uploadTask;
+            map["ref"] = ref;
+            return map;
+          }
+        });
+      } else if (!galleryCam) {
+        return img.getVideo(source: ImageSource.gallery).then((value) {
+          if (value != null) {
+            File file = File(value.path);
+
+            ref = FirebaseStorage.instance
+                .ref()
+                .child("video")
+                .child(today)
+                .child(storageId);
+            uploadTask =
+                ref.putFile(file, SettableMetadata(contentType: 'video/mp4'));
+            if (uploadTask != null) {
+              map["uploadTask"] = uploadTask;
+              map["ref"] = ref;
+            }
+
+            return map;
+          }
+          return null;
+        });
+      } else if (galleryCam) {
+        return img.getImage(source: ImageSource.gallery).then((value) {
+          if (value != null) {
+            File file = File(value.path);
+
+            ref = FirebaseStorage.instance
+                .ref()
+                .child("image")
+                .child(today)
+                .child(storageId);
+            uploadTask =
+                ref.putFile(file, SettableMetadata(contentType: 'image/jpeg'));
+            if (uploadTask != null) {
+              map["uploadTask"] = uploadTask;
+              map["ref"] = ref;
+            }
+            return map;
+          }
+          return null;
+        });
+      }
+
+      // String url = await uploadTask.then((e) async {
+      //   String u = await ref.getDownloadURL();
+      //   print(u);
+      //   return u;
+      // });
+
+      // CallUtils cu = CallUtils();
+      // await cu.addFile(
+      //   call: call,
+      //   url: url,
+      //   fileName: fileName,
+      // );
+      // return true;
+    } catch (error) {
+      print(error);
+    }
+    return null;
   }
 }

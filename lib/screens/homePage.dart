@@ -1,5 +1,6 @@
 import 'package:calidad_app/model/user.dart';
 import 'package:calidad_app/provider/userProvider.dart';
+import 'package:calidad_app/screens/history.dart';
 
 import 'package:calidad_app/screens/patients.dart';
 import 'package:calidad_app/utils/firebaseRepository.dart';
@@ -55,16 +56,34 @@ class _HomePageState extends State<HomePage> {
         width: width * 0.7,
         child: Drawer(
             child: Container(
-                padding: EdgeInsets.all(20),
-                child: GestureDetector(
-                  onTap: () {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => Patients()));
-                  },
-                  child: ListTile(
-                    title: Text("Patients",
-                        style: GoogleFonts.montserrat(fontSize: 20)),
-                  ),
+                padding: EdgeInsets.symmetric(horizontal: 5, vertical: 20),
+                child: Column(
+                  children: [
+                    SizedBox(height: 40),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => Patients()));
+                      },
+                      child: ListTile(
+                        title: Text("Patients",
+                            style: GoogleFonts.montserrat(fontSize: 22)),
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (context) => History()));
+                      },
+                      child: ListTile(
+                        title: Text("History",
+                            style: GoogleFonts.montserrat(fontSize: 22)),
+                      ),
+                    ),
+                  ],
                 ))),
       ),
       backgroundColor: Colors.white,

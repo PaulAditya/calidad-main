@@ -3,7 +3,7 @@ import 'dart:math';
 
 import 'package:calidad_app/model/call.dart';
 import 'package:calidad_app/model/doctor.dart';
-import 'package:calidad_app/model/patient.dart';
+
 import 'package:calidad_app/model/user.dart';
 import 'package:calidad_app/screens/call_screen.dart';
 import 'package:calidad_app/utils/call_methods.dart';
@@ -17,7 +17,8 @@ class CallUtils {
       @required Map patient,
       context}) async {
     Call call = Call(
-        callerId: user.uid,
+        userId: user.uid,
+        callerId: "${user.uid}_${patient['id']}",
         callerName: user.username,
         callerPic: user.profilePhoto,
         receiverId: doctor.uid,
