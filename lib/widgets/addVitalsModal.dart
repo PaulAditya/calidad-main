@@ -155,8 +155,11 @@ class AddVitalModal extends StatelessWidget {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) =>
-                                Prescription(rx: pres, call: call)));
+                            builder: (context) => Prescription(
+                                  rx: pres,
+                                  patient: call.callerName,
+                                  doctor: call.receiverName,
+                                )));
                   }
                 : null,
             child: Container(

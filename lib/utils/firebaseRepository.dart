@@ -39,6 +39,12 @@ class FirebaseRepository {
   Future<List<AppointmentDetails>> getHistory(String uid) =>
       _firebaseMethods.getHistory(uid);
 
+  Future<bool> deletePatient(int index, String uid) =>
+      _firebaseMethods.deletePatient(index, uid);
+
+  Future<bool> editPatient(Patient patient, String uid, int index) =>
+      _firebaseMethods.editPatient(patient, uid, index);
+
   Future<bool> uploadToStorage(Map map, Call call, String fileName) =>
       _firebaseMethods.uploadToStorage(map, call, fileName);
 

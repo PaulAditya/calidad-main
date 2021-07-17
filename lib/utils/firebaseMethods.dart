@@ -118,6 +118,22 @@ class FirebaseMethods {
     return false;
   }
 
+  Future<bool> editPatient(Patient patient, String uid, int index) async {
+    try {
+      DocumentSnapshot userDoc = await _userCollection.doc(uid).get();
+      Users user = Users.fromMap(userDoc.data());
+
+      List patients = user.patients;
+      patients[index] = patient.toJson();
+
+      _userCollection.doc(uid).update({'patients': patients});
+      return true;
+    } catch (e) {
+      print(e);
+    }
+    return false;
+  }
+
   Future<List<Map>> getPatients(String uid) async {
     try {
       DocumentSnapshot doc = await _userCollection.doc(uid).get();
@@ -169,6 +185,23 @@ class FirebaseMethods {
     rx = details.rx;
 
     return rx;
+  }
+
+  Future<bool> deletePatient(int index, String uid) async {
+    try {
+      DocumentSnapshot doc = await _userCollection.doc(uid).get();
+
+      Users user = Users.fromMap(doc.data());
+
+      List<Map> patients = user.patients;
+      patients.removeAt(index);
+      _userCollection.doc(uid).update({'patients': patients});
+
+      return true;
+    } catch (e) {
+      print(e);
+    }
+    return false;
   }
 
   Future<List<Doctor>> getDoctors() async {
@@ -250,6 +283,7 @@ class FirebaseMethods {
             map["ref"] = ref;
             return map;
           }
+          return null;
         });
       } else if (!galleryCam) {
         return img.getVideo(source: ImageSource.gallery).then((value) {
@@ -293,20 +327,6 @@ class FirebaseMethods {
           return null;
         });
       }
-
-      // String url = await uploadTask.then((e) async {
-      //   String u = await ref.getDownloadURL();
-      //   print(u);
-      //   return u;
-      // });
-
-      // CallUtils cu = CallUtils();
-      // await cu.addFile(
-      //   call: call,
-      //   url: url,
-      //   fileName: fileName,
-      // );
-      // return true;
     } catch (error) {
       print(error);
     }

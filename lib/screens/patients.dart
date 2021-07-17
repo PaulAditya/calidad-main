@@ -1,4 +1,5 @@
 import 'package:calidad_app/model/doctor.dart';
+import 'package:calidad_app/model/patient.dart';
 
 import 'package:calidad_app/model/user.dart';
 import 'package:calidad_app/provider/userProvider.dart';
@@ -95,32 +96,98 @@ class _PatientsState extends State<Patients> {
                           itemCount: patients.length,
                           itemBuilder: (context, index) {
                             return Container(
+                              padding: EdgeInsets.symmetric(horizontal: 5),
+                              height: 80,
+                              width: 150,
                               margin: EdgeInsets.only(bottom: 10),
                               decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(10),
                                   border: Border.all(
                                     color: Colors.black,
                                   )),
-                              child: ListTile(
-                                onTap: () async {
-                                  print(widget.user);
-                                  if (widget.user != null &&
-                                      widget.doctor != null) {
-                                    await CallUtils.dial(
-                                        user: user,
-                                        doctor: widget.doctor,
-                                        patient: patients[index],
-                                        context: context);
-                                  }
-                                },
-                                title: Text(
-                                  "Name - ${patients[index]['name']}",
-                                  style: GoogleFonts.montserrat(fontSize: 18),
-                                ),
-                                subtitle: Text(
-                                  "Age - ${patients[index]['age']}",
-                                  style: GoogleFonts.montserrat(fontSize: 16),
-                                ),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Container(
+                                    width: 180,
+                                    child: ListTile(
+                                      onTap: () async {
+                                        if (widget.user != null &&
+                                            widget.doctor != null) {
+                                          await CallUtils.dial(
+                                              user: user,
+                                              doctor: widget.doctor,
+                                              patient: patients[index],
+                                              context: context);
+                                        }
+                                      },
+                                      title: Text(
+                                        "Name - ${patients[index]['name']}",
+                                        style: GoogleFonts.montserrat(
+                                            fontSize: 18),
+                                      ),
+                                      subtitle: Text(
+                                        "Age - ${patients[index]['age']}",
+                                        style: GoogleFonts.montserrat(
+                                            fontSize: 16),
+                                      ),
+                                    ),
+                                  ),
+                                  Row(
+                                    children: [
+                                      GestureDetector(
+                                        onTap: () async {
+                                          Navigator.pushReplacement(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      PatientForm(
+                                                        patient:
+                                                            Patient.fromMap(
+                                                                patients[
+                                                                    index]),
+                                                        index: index,
+                                                      )));
+                                        },
+                                        child: Container(
+                                          height: 40,
+                                          width: 40,
+                                          child: Icon(
+                                            Icons.edit,
+                                            size: 30,
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(width: 5),
+                                      GestureDetector(
+                                        onTap: () async {
+                                          setState(() {
+                                            _isLoading = true;
+                                          });
+                                          await _repo.deletePatient(
+                                              index, user.uid);
+
+                                          List p =
+                                              await _repo.getPatients(user.uid);
+
+                                          setState(() {
+                                            _isLoading = false;
+                                            patients = p;
+                                          });
+                                        },
+                                        child: Container(
+                                          height: 40,
+                                          width: 40,
+                                          child: Icon(
+                                            Icons.delete,
+                                            size: 30,
+                                          ),
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ],
                               ),
                             );
                           })

@@ -9,9 +9,13 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 class PatientForm extends StatefulWidget {
+  final Patient patient;
   final Users user;
   final Doctor doctor;
-  const PatientForm({Key key, this.user, this.doctor}) : super(key: key);
+  final int index;
+
+  const PatientForm({Key key, this.user, this.doctor, this.patient, this.index})
+      : super(key: key);
 
   @override
   _PatientFormState createState() => _PatientFormState();
@@ -26,12 +30,20 @@ class _PatientFormState extends State<PatientForm> {
   TextEditingController _age = TextEditingController();
   TextEditingController _weight = TextEditingController();
   TextEditingController _height = TextEditingController();
+  TextEditingController _mobile = TextEditingController();
   bool _isLoading;
 
   @override
   void initState() {
     super.initState();
     _isLoading = false;
+    if (widget.patient != null) {
+      _name.text = widget.patient.name;
+      _age.text = widget.patient.age;
+      _height.text = widget.patient.height;
+      _weight.text = widget.patient.weight;
+      _mobile.text = widget.patient.mobile;
+    }
   }
 
   @override
@@ -123,6 +135,17 @@ class _PatientFormState extends State<PatientForm> {
                 SizedBox(height: 10.0),
                 TextField(
                   keyboardType: TextInputType.number,
+                  controller: _mobile,
+                  decoration: InputDecoration(
+                      labelText: 'Mobile No.',
+                      labelStyle: GoogleFonts.montserrat(
+                          fontWeight: FontWeight.bold, color: Colors.grey),
+                      focusedBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: Colors.blueAccent))),
+                ),
+                SizedBox(height: 10.0),
+                TextField(
+                  keyboardType: TextInputType.number,
                   controller: _height,
                   decoration: InputDecoration(
                       labelText: 'Height',
@@ -136,47 +159,90 @@ class _PatientFormState extends State<PatientForm> {
                   alignment: Alignment.bottomCenter,
                   child: GestureDetector(
                     onTap: () async {
-                      print(widget.user);
                       setState(() {
                         _isLoading = true;
                       });
-                      List patients = await _repo.getPatients(user.uid);
-                      var i;
-                      if (patients == null) {
-                        i = 0;
+                      if (_name.text.length > 0 && _age.text.length > 0) {
+                        List patients = await _repo.getPatients(user.uid);
+
+                        var i;
+                        if (patients == null || patients.length == 0) {
+                          i = 0;
+                        } else {
+                          i = int.parse(patients.last["id"]) + 1;
+                        }
+
+                        Patient p = Patient(
+                            widget.patient == null
+                                ? i.toString()
+                                : widget.patient.id,
+                            _name.text,
+                            _age.text,
+                            _weight.text,
+                            _height.text,
+                            _gender.toString().split('.').last,
+                            _mobile.text);
+
+                        if (widget.patient == null) {
+                          _repo.addPatient(p, user.uid).then((value) {
+                            _name.clear();
+                            _age.clear();
+                            _weight.clear();
+                            _height.clear();
+                            _mobile.clear();
+                            setState(() {
+                              _isLoading = false;
+                            });
+                            if (value) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                      content: Text("Uploaded Succesfully")));
+                              Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => Patients(
+                                          user: widget.user,
+                                          doctor: widget.doctor)));
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text("Try Again")));
+                            }
+                          });
+                        } else {
+                          _repo
+                              .editPatient(p, user.uid, widget.index)
+                              .then((value) {
+                            _name.clear();
+                            _age.clear();
+                            _weight.clear();
+                            _height.clear();
+                            _mobile.clear();
+                            setState(() {
+                              _isLoading = false;
+                            });
+                            if (value) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                      content: Text("Uploaded Succesfully")));
+                              Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => Patients(
+                                          user: widget.user,
+                                          doctor: widget.doctor)));
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text("Try Again")));
+                            }
+                          });
+                        }
                       } else {
-                        i = patients.length;
-                      }
-                      print(_height.text);
-                      Patient p = Patient(
-                          i.toString(),
-                          _name.text,
-                          _age.text,
-                          _weight.text,
-                          _height.text,
-                          _gender.toString().split('.').last);
-                      _repo.addPatient(p, user.uid).then((value) {
-                        _name.clear();
-                        _age.clear();
-                        _weight.clear();
-                        _height.clear();
                         setState(() {
                           _isLoading = false;
                         });
-                        if (value) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text("Uploaded Succesfully")));
-                          Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => Patients(
-                                      user: widget.user,
-                                      doctor: widget.doctor)));
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text("Try Again")));
-                        }
-                      });
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: Text("Name and Age cannot be empty")));
+                      }
                     },
                     child: _isLoading
                         ? CircularProgressIndicator()

@@ -1,6 +1,7 @@
 import 'package:calidad_app/model/appointmentDetails.dart';
 import 'package:calidad_app/model/user.dart';
 import 'package:calidad_app/provider/userProvider.dart';
+import 'package:calidad_app/screens/prescription.dart';
 
 import 'package:calidad_app/utils/firebaseRepository.dart';
 
@@ -70,6 +71,25 @@ class _HistoryState extends State<History> {
                                     color: Colors.black,
                                   )),
                               child: ListTile(
+                                onTap: () {
+                                  if (history[index].rx != null) {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => Prescription(
+                                                  rx: history[index].rx,
+                                                  patient: history[index]
+                                                      .patientDetails
+                                                      .name,
+                                                  doctor: history[index].doctor,
+                                                )));
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                            content: Text(
+                                                "Prescription Not Available")));
+                                  }
+                                },
                                 title: Text(
                                   "Patient - ${history[index].patientDetails.name}",
                                   style: GoogleFonts.montserrat(fontSize: 18),

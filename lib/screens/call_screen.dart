@@ -329,8 +329,11 @@ class _CallScreenState extends State<CallScreen> {
                   Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
-                          builder: (context) =>
-                              Prescription(rx: value, call: widget.call)));
+                          builder: (context) => Prescription(
+                                rx: value,
+                                patient: widget.call.callerName,
+                                doctor: widget.call.receiverName,
+                              )));
                 }
               }
             },
