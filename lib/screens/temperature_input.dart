@@ -39,7 +39,7 @@ class _TemperatureState extends State<Temperature> {
   DeviceUtils dv = DeviceUtils();
   bool _isLoadingCamera = false;
   double _progress;
-  bool _uploading;
+  bool _uploading = false;
 
   @override
   void initState() {

@@ -18,14 +18,16 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: Container(
-        child: FutureBuilder(future: repo.getCurrentUser(),
-        builder: (context, AsyncSnapshot<Users> snapshot) {
-              if (snapshot.hasData) {
-                return HomePage();
-              } else {
-                return LoginScreen();
-              }
-            },),
+        child: FutureBuilder(
+          future: repo.getCurrentUser(),
+          builder: (context, AsyncSnapshot<Users> snapshot) {
+            if (snapshot.hasData) {
+              return HomePage();
+            } else {
+              return LoginScreen();
+            }
+          },
+        ),
       ),
     );
   }
