@@ -104,7 +104,7 @@ class _Spo2ScreenState extends State<Spo2Screen> {
         res = avgSpo2(_stream);
 
         CallUtils callutils = CallUtils();
-        callutils.addTemperature(
+        callutils.addVitals(
             call: widget.call, value: res.toString(), name: "spo2");
         setState(() {
           _serialData.add(Text(
@@ -190,7 +190,7 @@ class _Spo2ScreenState extends State<Spo2Screen> {
                     _isLoadingCamera = !_isLoadingCamera;
                   });
                   Map map = await _repo
-                      .getUploadTask(user.uid, true, false)
+                      .getUploadTask(user.uid, true, false, false)
                       .then((value) {
                     setState(() {
                       _uploading = true;

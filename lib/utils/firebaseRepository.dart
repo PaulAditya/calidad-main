@@ -52,10 +52,7 @@ class FirebaseRepository {
     String uid,
     bool camera,
     bool galleryCam,
+    bool pdf,
   ) =>
-      _firebaseMethods.getUploadTask(
-        uid,
-        camera,
-        galleryCam,
-      );
+      _firebaseMethods.getUploadTask(uid, camera, galleryCam, pdf);
 }

@@ -7,7 +7,7 @@ import 'package:calidad_app/model/doctor.dart';
 import 'package:calidad_app/model/patient.dart';
 import 'package:calidad_app/model/user.dart';
 import 'package:calidad_app/utils/call_utils.dart';
-
+import 'package:file_picker/file_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -234,6 +234,9 @@ class FirebaseMethods {
       String url = await uploadTask.then((e) async {
         String u = await ref.getDownloadURL();
 
+        if (map["description"] != null) {
+          u = u + '@' + map["description"];
+        }
         return u;
       });
 
@@ -251,10 +254,7 @@ class FirebaseMethods {
   }
 
   Future<Map> getUploadTask(
-    String uid,
-    bool camera,
-    bool galleryCam,
-  ) async {
+      String uid, bool camera, bool galleryCam, bool pdf) async {
     try {
       final DateTime now = DateTime.now();
       final int millSeconds = now.millisecondsSinceEpoch;
@@ -263,12 +263,19 @@ class FirebaseMethods {
       final String storageId = (millSeconds.toString() + uid);
       final String today = ('$month-$date');
       ImagePicker img = ImagePicker();
+
       UploadTask uploadTask;
       Reference ref;
       Map map = new Map();
 
       if (camera) {
-        return img.getImage(source: ImageSource.camera).then((value) {
+        return img
+            .getImage(
+                source: ImageSource.camera,
+                imageQuality: 50,
+                maxHeight: 640,
+                maxWidth: 480)
+            .then((value) {
           if (value != null) {
             File file = File(value.path);
 
@@ -285,6 +292,25 @@ class FirebaseMethods {
           }
           return null;
         });
+      } else if (pdf) {
+        FilePickerResult res = await FilePicker.platform
+            .pickFiles(type: FileType.custom, allowedExtensions: ["pdf"]);
+
+        if (res != null) {
+          File file = File(res.files.single.path);
+          ref = FirebaseStorage.instance
+              .ref()
+              .child("document")
+              .child(today)
+              .child(storageId);
+          uploadTask = ref.putData(file.readAsBytesSync());
+          if (uploadTask != null) {
+            map["uploadTask"] = uploadTask;
+            map["ref"] = ref;
+          }
+          return map;
+        }
+        return null;
       } else if (!galleryCam) {
         return img.getVideo(source: ImageSource.gallery).then((value) {
           if (value != null) {
@@ -307,7 +333,13 @@ class FirebaseMethods {
           return null;
         });
       } else if (galleryCam) {
-        return img.getImage(source: ImageSource.gallery).then((value) {
+        return img
+            .getImage(
+                source: ImageSource.gallery,
+                imageQuality: 50,
+                maxHeight: 640,
+                maxWidth: 480)
+            .then((value) {
           if (value != null) {
             File file = File(value.path);
 

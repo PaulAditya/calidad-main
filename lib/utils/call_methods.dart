@@ -17,6 +17,8 @@ class CallMethods {
   List<dynamic> dental_video = [];
   List<dynamic> eye_image = [];
   List<dynamic> xtra_files = [];
+  List<dynamic> ecg = [];
+  List<dynamic> eye_pdf = [];
 
   Future<bool> makeCall({Call call}) async {
     try {
@@ -43,6 +45,9 @@ class CallMethods {
       vitals["temperature_image"] = null;
       vitals["spo2_image"] = null;
       vitals["xtra_files"] = null;
+      vitals["ecg"] = null;
+      vitals["eye-pdf"] = null;
+      vitals["peekFlow"] = null;
 
       await callDetailCollection.doc(docId).set(vitals);
 
@@ -53,7 +58,7 @@ class CallMethods {
     }
   }
 
-  Future<bool> addTemperature({Call call, String name, String value}) async {
+  Future<bool> addVitals({Call call, String name, String value}) async {
     try {
       String docId =
           call.receiverId + "-" + call.callerId + "-" + call.channelId;
@@ -106,6 +111,14 @@ class CallMethods {
       } else if (name == "xtra_files") {
         xtra_files.add(url);
         vitals[name] = xtra_files;
+      } else if (name == "ecg") {
+        ecg.add(url);
+
+        vitals[name] = ecg;
+      } else if (name == "eye-pdf") {
+        eye_pdf.add(url);
+
+        vitals[name] = eye_pdf;
       }
 
       await callDetailCollection.doc(docId).update(vitals);

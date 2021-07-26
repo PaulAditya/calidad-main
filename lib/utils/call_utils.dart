@@ -43,8 +43,8 @@ class CallUtils {
     return res;
   }
 
-  Future<bool> addTemperature({Call call, String value, String name}) {
-    return callMethods.addTemperature(call: call, name: name, value: value);
+  Future<bool> addVitals({Call call, String value, String name}) {
+    return callMethods.addVitals(call: call, name: name, value: value);
   }
 
   Future<bool> addFile({Call call, String url, String fileName, int index}) {

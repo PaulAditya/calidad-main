@@ -107,7 +107,7 @@ class _TemperatureState extends State<Temperature> {
         res = avgTemp(_stream);
 
         CallUtils callutils = CallUtils();
-        callutils.addTemperature(
+        callutils.addVitals(
             call: widget.call,
             value: "${res.toString()}*F",
             name: "temperature");
@@ -192,7 +192,7 @@ class _TemperatureState extends State<Temperature> {
                   _isLoadingCamera = !_isLoadingCamera;
                 });
                 Map map = await _repo
-                    .getUploadTask(user.uid, true, false)
+                    .getUploadTask(user.uid, true, false, false)
                     .then((value) {
                   setState(() {
                     _uploading = true;

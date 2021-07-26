@@ -1,5 +1,7 @@
 import 'package:calidad_app/model/call.dart';
+import 'package:calidad_app/screens/ecg.dart';
 import 'package:calidad_app/screens/otoscope.dart';
+import 'package:calidad_app/screens/peek_flow.dart';
 import 'package:calidad_app/screens/prescription.dart';
 
 import 'package:calidad_app/screens/spo2.dart';
@@ -63,6 +65,8 @@ class AddVitalModal extends StatelessWidget {
                       camera: false,
                       gallery: false,
                       recorder: true,
+                      description: false,
+                      pdf: false,
                     )),
                 DeviceCard(
                     image: 'assets/dental.png',
@@ -74,6 +78,8 @@ class AddVitalModal extends StatelessWidget {
                       camera: false,
                       gallery: false,
                       recorder: true,
+                      description: false,
+                      pdf: false,
                     )),
                 DeviceCard(
                     image: 'assets/stethoscope.png',
@@ -112,6 +118,8 @@ class AddVitalModal extends StatelessWidget {
                       camera: true,
                       gallery: true,
                       recorder: false,
+                      description: false,
+                      pdf: false,
                     )),
                 DeviceCard(
                     image: 'assets/bp_reading.png',
@@ -123,6 +131,8 @@ class AddVitalModal extends StatelessWidget {
                       camera: true,
                       gallery: true,
                       recorder: false,
+                      description: false,
+                      pdf: false,
                     )),
                 DeviceCard(
                     image: 'assets/file.png',
@@ -134,6 +144,8 @@ class AddVitalModal extends StatelessWidget {
                       camera: true,
                       gallery: true,
                       recorder: false,
+                      description: true,
+                      pdf: false,
                     )),
                 DeviceCard(
                     image: 'assets/eye.png',
@@ -145,6 +157,20 @@ class AddVitalModal extends StatelessWidget {
                       camera: true,
                       gallery: true,
                       recorder: false,
+                      description: false,
+                      pdf: true,
+                    )),
+                DeviceCard(
+                    image: 'assets/ecg.png',
+                    title: 'ECG',
+                    page: ECG(
+                      call: call,
+                    )),
+                DeviceCard(
+                    image: 'assets/peekflow.jpg',
+                    title: 'Peekflow',
+                    page: PeekFlow(
+                      call: call,
                     )),
               ],
             ),

@@ -162,19 +162,57 @@ class _PatientsState extends State<Patients> {
                                       SizedBox(width: 5),
                                       GestureDetector(
                                         onTap: () async {
-                                          setState(() {
-                                            _isLoading = true;
-                                          });
-                                          await _repo.deletePatient(
-                                              index, user.uid);
+                                          showDialog(
+                                              context: context,
+                                              builder: (BuildContext context) {
+                                                return AlertDialog(
+                                                  title: Text("Confirm"),
+                                                  content: Text(
+                                                      "Confirm Delete Patient?"),
+                                                  actions: [
+                                                    TextButton(
+                                                        onPressed: () async {
+                                                          setState(() {
+                                                            _isLoading = true;
+                                                          });
+                                                          await _repo
+                                                              .deletePatient(
+                                                                  index,
+                                                                  user.uid);
 
-                                          List p =
-                                              await _repo.getPatients(user.uid);
+                                                          List p = await _repo
+                                                              .getPatients(
+                                                                  user.uid);
 
-                                          setState(() {
-                                            _isLoading = false;
-                                            patients = p;
-                                          });
+                                                          setState(() {
+                                                            _isLoading = false;
+                                                            patients = p;
+                                                          });
+                                                          Navigator.of(context)
+                                                              .pop();
+                                                        },
+                                                        child: Text("Delete",
+                                                            style: GoogleFonts
+                                                                .montserrat(
+                                                                    fontSize:
+                                                                        16,
+                                                                    color: Colors
+                                                                        .red))),
+                                                    TextButton(
+                                                        onPressed: () {
+                                                          Navigator.of(context)
+                                                              .pop();
+                                                        },
+                                                        child: Text("Cancel",
+                                                            style: GoogleFonts
+                                                                .montserrat(
+                                                                    fontSize:
+                                                                        16,
+                                                                    color: Colors
+                                                                        .blue))),
+                                                  ],
+                                                );
+                                              });
                                         },
                                         child: Container(
                                           height: 40,
