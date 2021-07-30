@@ -1,43 +1,35 @@
 import 'package:calidad_app/model/call.dart';
-import 'package:calidad_app/provider/userProvider.dart';
+
 import 'package:calidad_app/utils/call_utils.dart';
-
-import 'package:calidad_app/utils/firebaseRepository.dart';
-
-import 'package:firebase_storage/firebase_storage.dart';
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import 'package:provider/provider.dart';
-
-class PeekFlow extends StatefulWidget {
+class PeakFlow extends StatefulWidget {
   final Call call;
-  const PeekFlow({
+  const PeakFlow({
     Key key,
     @required this.call,
   }) : super(key: key);
 
   @override
-  _PeekFlowState createState() => _PeekFlowState();
+  _PeakFlowState createState() => _PeakFlowState();
 }
 
-class _PeekFlowState extends State<PeekFlow> {
+class _PeakFlowState extends State<PeakFlow> {
   bool _isLoading = false;
 
-  TextEditingController _peekflow = new TextEditingController();
-  final FirebaseRepository _repo = FirebaseRepository();
+  TextEditingController _peakflow = new TextEditingController();
+
   final CallUtils cu = CallUtils();
 
   @override
   Widget build(BuildContext context) {
-    final UserProvider user = Provider.of<UserProvider>(context);
-
     return Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
           backgroundColor: Colors.blue[900],
-          title: Text("PeekFlow"),
+          title: Text("PeakFlow"),
         ),
         body: SingleChildScrollView(
           child: Container(
@@ -47,7 +39,7 @@ class _PeekFlowState extends State<PeekFlow> {
                 children: [
                   TextField(
                     keyboardType: TextInputType.number,
-                    controller: _peekflow,
+                    controller: _peakflow,
                     decoration: InputDecoration(
                         labelText: 'Enter Value',
                         labelStyle: GoogleFonts.montserrat(
@@ -64,12 +56,12 @@ class _PeekFlowState extends State<PeekFlow> {
                           _isLoading = !_isLoading;
                         });
 
-                        if (_peekflow.text != null) {
+                        if (_peakflow.text != null) {
                           cu
                               .addVitals(
                                   call: widget.call,
-                                  value: _peekflow.text,
-                                  name: "peekFlow")
+                                  value: "${_peakflow.text} L/min",
+                                  name: "peakFlow")
                               .then((value) {
                             if (value) {
                               ScaffoldMessenger.of(context).showSnackBar(
@@ -80,13 +72,13 @@ class _PeekFlowState extends State<PeekFlow> {
                                   SnackBar(content: Text("Try Again")));
                             }
                             setState(() {
-                              _peekflow.clear();
+                              _peakflow.clear();
                               _isLoading = !_isLoading;
                             });
                           });
                         } else {
                           setState(() {
-                            _peekflow.clear();
+                            _peakflow.clear();
                             _isLoading = !_isLoading;
                           });
                         }

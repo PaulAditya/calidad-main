@@ -1,7 +1,7 @@
 import 'package:calidad_app/model/call.dart';
 import 'package:calidad_app/screens/ecg.dart';
 import 'package:calidad_app/screens/otoscope.dart';
-import 'package:calidad_app/screens/peek_flow.dart';
+import 'package:calidad_app/screens/peak_flow.dart';
 import 'package:calidad_app/screens/prescription.dart';
 
 import 'package:calidad_app/screens/spo2.dart';
@@ -67,6 +67,7 @@ class AddVitalModal extends StatelessWidget {
                       recorder: true,
                       description: false,
                       pdf: false,
+                      lowQuality: false,
                     )),
                 DeviceCard(
                     image: 'assets/dental.png',
@@ -80,6 +81,7 @@ class AddVitalModal extends StatelessWidget {
                       recorder: true,
                       description: false,
                       pdf: false,
+                      lowQuality: false,
                     )),
                 DeviceCard(
                     image: 'assets/stethoscope.png',
@@ -120,6 +122,7 @@ class AddVitalModal extends StatelessWidget {
                       recorder: false,
                       description: false,
                       pdf: false,
+                      lowQuality: false,
                     )),
                 DeviceCard(
                     image: 'assets/bp_reading.png',
@@ -133,6 +136,7 @@ class AddVitalModal extends StatelessWidget {
                       recorder: false,
                       description: false,
                       pdf: false,
+                      lowQuality: true,
                     )),
                 DeviceCard(
                     image: 'assets/file.png',
@@ -142,10 +146,11 @@ class AddVitalModal extends StatelessWidget {
                       call: call,
                       fileName: "xtra_files",
                       camera: true,
-                      gallery: true,
+                      gallery: false,
                       recorder: false,
                       description: true,
-                      pdf: false,
+                      pdf: true,
+                      lowQuality: false,
                     )),
                 DeviceCard(
                     image: 'assets/eye.png',
@@ -159,6 +164,7 @@ class AddVitalModal extends StatelessWidget {
                       recorder: false,
                       description: false,
                       pdf: true,
+                      lowQuality: false,
                     )),
                 DeviceCard(
                     image: 'assets/ecg.png',
@@ -168,8 +174,8 @@ class AddVitalModal extends StatelessWidget {
                     )),
                 DeviceCard(
                     image: 'assets/peekflow.jpg',
-                    title: 'Peekflow',
-                    page: PeekFlow(
+                    title: 'Peakflow',
+                    page: PeakFlow(
                       call: call,
                     )),
               ],

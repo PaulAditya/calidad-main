@@ -26,6 +26,8 @@ class CallMethods {
       String docId =
           call.receiverId + "-" + call.callerId + "-" + call.channelId;
       await callCollection.doc(call.receiverId).set(map);
+      DateTime now = DateTime.now();
+
       Map<String, dynamic> vitals = Map<String, dynamic>();
       vitals["doctor"] = call.receiverName;
       vitals["patient_id"] = call.callerId;
@@ -46,8 +48,9 @@ class CallMethods {
       vitals["spo2_image"] = null;
       vitals["xtra_files"] = null;
       vitals["ecg"] = null;
-      vitals["eye-pdf"] = null;
-      vitals["peekFlow"] = null;
+      vitals["eye_pdf"] = null;
+      vitals["peakFlow"] = null;
+      vitals["date"] = now;
 
       await callDetailCollection.doc(docId).set(vitals);
 
@@ -115,7 +118,7 @@ class CallMethods {
         ecg.add(url);
 
         vitals[name] = ecg;
-      } else if (name == "eye-pdf") {
+      } else if (name == "eye_pdf") {
         eye_pdf.add(url);
 
         vitals[name] = eye_pdf;

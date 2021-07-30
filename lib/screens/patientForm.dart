@@ -31,6 +31,8 @@ class _PatientFormState extends State<PatientForm> {
   TextEditingController _weight = TextEditingController();
   TextEditingController _height = TextEditingController();
   TextEditingController _mobile = TextEditingController();
+  TextEditingController _location = TextEditingController();
+  TextEditingController _email = TextEditingController();
   bool _isLoading;
 
   @override
@@ -43,6 +45,8 @@ class _PatientFormState extends State<PatientForm> {
       _height.text = widget.patient.height;
       _weight.text = widget.patient.weight;
       _mobile.text = widget.patient.mobile;
+      _email.text = widget.patient.email;
+      _location.text = widget.patient.location;
     }
   }
 
@@ -124,9 +128,31 @@ class _PatientFormState extends State<PatientForm> {
                 SizedBox(height: 10.0),
                 TextField(
                   keyboardType: TextInputType.number,
-                  controller: _weight,
+                  controller: _mobile,
                   decoration: InputDecoration(
-                      labelText: 'Weight',
+                      labelText: 'Mobile No.',
+                      labelStyle: GoogleFonts.montserrat(
+                          fontWeight: FontWeight.bold, color: Colors.grey),
+                      focusedBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: Colors.blueAccent))),
+                ),
+                SizedBox(height: 10.0),
+                TextField(
+                  keyboardType: TextInputType.emailAddress,
+                  controller: _email,
+                  decoration: InputDecoration(
+                      labelText: 'Email',
+                      labelStyle: GoogleFonts.montserrat(
+                          fontWeight: FontWeight.bold, color: Colors.grey),
+                      focusedBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: Colors.blueAccent))),
+                ),
+                SizedBox(height: 10.0),
+                TextField(
+                  keyboardType: TextInputType.text,
+                  controller: _location,
+                  decoration: InputDecoration(
+                      labelText: 'Location',
                       labelStyle: GoogleFonts.montserrat(
                           fontWeight: FontWeight.bold, color: Colors.grey),
                       focusedBorder: UnderlineInputBorder(
@@ -135,9 +161,9 @@ class _PatientFormState extends State<PatientForm> {
                 SizedBox(height: 10.0),
                 TextField(
                   keyboardType: TextInputType.number,
-                  controller: _mobile,
+                  controller: _weight,
                   decoration: InputDecoration(
-                      labelText: 'Mobile No.',
+                      labelText: 'Weight',
                       labelStyle: GoogleFonts.montserrat(
                           fontWeight: FontWeight.bold, color: Colors.grey),
                       focusedBorder: UnderlineInputBorder(
@@ -181,7 +207,9 @@ class _PatientFormState extends State<PatientForm> {
                             _weight.text,
                             _height.text,
                             _gender.toString().split('.').last,
-                            _mobile.text);
+                            _mobile.text,
+                            _email.text,
+                            _location.text);
 
                         if (widget.patient == null) {
                           _repo.addPatient(p, user.uid).then((value) {
@@ -190,6 +218,8 @@ class _PatientFormState extends State<PatientForm> {
                             _weight.clear();
                             _height.clear();
                             _mobile.clear();
+                            _email.clear();
+                            _location.clear();
                             setState(() {
                               _isLoading = false;
                             });
@@ -217,6 +247,8 @@ class _PatientFormState extends State<PatientForm> {
                             _weight.clear();
                             _height.clear();
                             _mobile.clear();
+                            _email.clear();
+                            _location.clear();
                             setState(() {
                               _isLoading = false;
                             });

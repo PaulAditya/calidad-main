@@ -11,6 +11,8 @@ import 'package:file_picker/file_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:image_picker/image_picker.dart';
@@ -253,8 +255,8 @@ class FirebaseMethods {
     return false;
   }
 
-  Future<Map> getUploadTask(
-      String uid, bool camera, bool galleryCam, bool pdf) async {
+  Future<Map> getUploadTask(String uid, bool camera, bool galleryCam, bool pdf,
+      bool lowQuality, BuildContext context, bool description) async {
     try {
       final DateTime now = DateTime.now();
       final int millSeconds = now.millisecondsSinceEpoch;
@@ -269,15 +271,65 @@ class FirebaseMethods {
       Map map = new Map();
 
       if (camera) {
-        return img
-            .getImage(
-                source: ImageSource.camera,
-                imageQuality: 50,
-                maxHeight: 640,
-                maxWidth: 480)
-            .then((value) {
-          if (value != null) {
-            File file = File(value.path);
+        PickedFile pickedFile = await img.getImage(source: ImageSource.camera);
+        if (pickedFile != null) {
+          print(description);
+          if (description) {
+            TextEditingController _desc = new TextEditingController();
+            await showDialog(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    title: Text("Enter Description"),
+                    content: TextFormField(
+                      controller: _desc,
+                      decoration: InputDecoration(
+                          labelText: 'Description',
+                          labelStyle: GoogleFonts.montserrat(
+                            color: Colors.grey,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Colors.blue[900]))),
+                    ),
+                    actions: [
+                      TextButton(
+                          onPressed: () {
+                            if (_desc.text.length == 0) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                      content:
+                                          Text("Description cannot be empty")));
+                            } else {
+                              File file = File(pickedFile.path);
+                              ref = FirebaseStorage.instance
+                                  .ref()
+                                  .child("image")
+                                  .child(today)
+                                  .child(storageId);
+                              uploadTask = ref.putFile(file,
+                                  SettableMetadata(contentType: 'image/jpeg'));
+                              if (uploadTask != null) {
+                                map["uploadTask"] = uploadTask;
+                                map["ref"] = ref;
+                                map["description"] = _desc.text;
+                              }
+
+                              Navigator.pop(context);
+                            }
+                          },
+                          child: Text("Ok")),
+                      TextButton(
+                          onPressed: () {
+                            map = null;
+                            Navigator.pop(context);
+                          },
+                          child: Text("Cancel"))
+                    ],
+                  );
+                });
+          } else {
+            File file = File(pickedFile.path);
 
             ref = FirebaseStorage.instance
                 .ref()
@@ -288,29 +340,70 @@ class FirebaseMethods {
                 ref.putFile(file, SettableMetadata(contentType: 'image/jpeg'));
             map["uploadTask"] = uploadTask;
             map["ref"] = ref;
-            return map;
           }
+
+          return map;
+        } else {
           return null;
-        });
+        }
       } else if (pdf) {
         FilePickerResult res = await FilePicker.platform
             .pickFiles(type: FileType.custom, allowedExtensions: ["pdf"]);
+        if (res != null && description) {
+          TextEditingController _desc = new TextEditingController();
+          await showDialog(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  title: Text("Enter Description"),
+                  content: TextFormField(
+                    controller: _desc,
+                    decoration: InputDecoration(
+                        labelText: 'Description',
+                        labelStyle: GoogleFonts.montserrat(
+                          color: Colors.grey,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        focusedBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: Colors.blue[900]))),
+                  ),
+                  actions: [
+                    TextButton(
+                        onPressed: () {
+                          if (_desc.text.length == 0) {
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                content: Text("Description cannot be empty")));
+                          } else {
+                            File file = File(res.files.single.path);
+                            ref = FirebaseStorage.instance
+                                .ref()
+                                .child("document")
+                                .child(today)
+                                .child(storageId);
+                            uploadTask = ref.putData(file.readAsBytesSync());
+                            if (uploadTask != null) {
+                              map["uploadTask"] = uploadTask;
+                              map["ref"] = ref;
+                              map["description"] = _desc.text;
+                            }
 
-        if (res != null) {
-          File file = File(res.files.single.path);
-          ref = FirebaseStorage.instance
-              .ref()
-              .child("document")
-              .child(today)
-              .child(storageId);
-          uploadTask = ref.putData(file.readAsBytesSync());
-          if (uploadTask != null) {
-            map["uploadTask"] = uploadTask;
-            map["ref"] = ref;
-          }
+                            Navigator.pop(context);
+                          }
+                        },
+                        child: Text("Ok")),
+                    TextButton(
+                        onPressed: () {
+                          map = null;
+                          Navigator.pop(context);
+                        },
+                        child: Text("Cancel"))
+                  ],
+                );
+              });
           return map;
+        } else {
+          return null;
         }
-        return null;
       } else if (!galleryCam) {
         return img.getVideo(source: ImageSource.gallery).then((value) {
           if (value != null) {
@@ -323,6 +416,7 @@ class FirebaseMethods {
                 .child(storageId);
             uploadTask =
                 ref.putFile(file, SettableMetadata(contentType: 'video/mp4'));
+
             if (uploadTask != null) {
               map["uploadTask"] = uploadTask;
               map["ref"] = ref;
@@ -333,31 +427,44 @@ class FirebaseMethods {
           return null;
         });
       } else if (galleryCam) {
-        return img
-            .getImage(
-                source: ImageSource.gallery,
-                imageQuality: 50,
-                maxHeight: 640,
-                maxWidth: 480)
-            .then((value) {
-          if (value != null) {
-            File file = File(value.path);
-
-            ref = FirebaseStorage.instance
-                .ref()
-                .child("image")
-                .child(today)
-                .child(storageId);
-            uploadTask =
-                ref.putFile(file, SettableMetadata(contentType: 'image/jpeg'));
-            if (uploadTask != null) {
-              map["uploadTask"] = uploadTask;
-              map["ref"] = ref;
-            }
-            return map;
-          }
+        PickedFile pickedFile = await img.getImage(source: ImageSource.gallery);
+        if (pickedFile != null) {
+          await showDialog(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  title: Text("Confirm"),
+                  actions: [
+                    TextButton(
+                        onPressed: () {
+                          File file = File(pickedFile.path);
+                          ref = FirebaseStorage.instance
+                              .ref()
+                              .child("image")
+                              .child(today)
+                              .child(storageId);
+                          uploadTask = ref.putFile(file,
+                              SettableMetadata(contentType: 'image/jpeg'));
+                          if (uploadTask != null) {
+                            map["uploadTask"] = uploadTask;
+                            map["ref"] = ref;
+                          }
+                          Navigator.of(context).pop();
+                        },
+                        child: Text("Ok")),
+                    TextButton(
+                        onPressed: () {
+                          map = null;
+                          Navigator.of(context).pop();
+                        },
+                        child: Text("Cancel"))
+                  ],
+                );
+              });
+          return map;
+        } else {
           return null;
-        });
+        }
       }
     } catch (error) {
       print(error);

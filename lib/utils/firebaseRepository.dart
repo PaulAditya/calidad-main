@@ -5,6 +5,7 @@ import 'package:calidad_app/model/patient.dart';
 import 'package:calidad_app/model/user.dart';
 import 'package:calidad_app/utils/firebaseMethods.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/cupertino.dart';
 
 class FirebaseRepository {
   FirebaseMethods _firebaseMethods = FirebaseMethods();
@@ -48,11 +49,8 @@ class FirebaseRepository {
   Future<bool> uploadToStorage(Map map, Call call, String fileName) =>
       _firebaseMethods.uploadToStorage(map, call, fileName);
 
-  Future<Map> getUploadTask(
-    String uid,
-    bool camera,
-    bool galleryCam,
-    bool pdf,
-  ) =>
-      _firebaseMethods.getUploadTask(uid, camera, galleryCam, pdf);
+  Future<Map> getUploadTask(String uid, bool camera, bool galleryCam, bool pdf,
+          bool lowQuality, BuildContext context, bool desc) =>
+      _firebaseMethods.getUploadTask(
+          uid, camera, galleryCam, pdf, lowQuality, context, desc);
 }

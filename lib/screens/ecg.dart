@@ -2,11 +2,10 @@ import 'package:calidad_app/model/call.dart';
 import 'package:calidad_app/provider/userProvider.dart';
 
 import 'package:calidad_app/utils/firebaseRepository.dart';
-import 'package:external_app_launcher/external_app_launcher.dart';
+
 import 'package:firebase_storage/firebase_storage.dart';
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'package:provider/provider.dart';
 
@@ -28,7 +27,6 @@ class _ECGState extends State<ECG> {
   double _progress;
   Map task;
 
-  TextEditingController _description = new TextEditingController();
   final FirebaseRepository _repo = FirebaseRepository();
 
   @override
@@ -54,7 +52,13 @@ class _ECGState extends State<ECG> {
                               _isLoading = !_isLoading;
                             });
                             Map map = await _repo.getUploadTask(
-                                user.getUser.uid, false, false, true);
+                                user.getUser.uid,
+                                false,
+                                false,
+                                true,
+                                false,
+                                context,
+                                false);
 
                             setState(() {
                               _uploading = true;

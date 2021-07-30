@@ -6,9 +6,11 @@ class Patient {
   String height;
   String gender;
   String mobile;
+  String location;
+  String email;
 
   Patient(String id, String name, String age, String weight, String height,
-      String gender, String mobile) {
+      String gender, String mobile, String email, String location) {
     this.id = id;
     this.name = name;
     this.age = age;
@@ -16,6 +18,8 @@ class Patient {
     this.height = height;
     this.gender = gender;
     this.mobile = mobile;
+    this.email = email;
+    this.location = location;
   }
 
   Map toJson() => {
@@ -25,7 +29,9 @@ class Patient {
         'height': height,
         'gender': gender,
         'id': id,
-        'mobile': mobile
+        'mobile': mobile,
+        'location': location,
+        "email": email,
       };
 
   Patient.fromMap(Map<String, dynamic> mapData) {
@@ -36,5 +42,7 @@ class Patient {
     this.height = mapData['height'];
     this.gender = mapData['gender'];
     this.mobile = mapData['mobile'];
+    this.email = mapData['email'];
+    this.location = mapData['location'];
   }
 }

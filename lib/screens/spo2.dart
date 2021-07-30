@@ -138,109 +138,118 @@ class _Spo2ScreenState extends State<Spo2Screen> {
         title: Text("SpO2"),
       ),
       backgroundColor: Colors.white,
-      body: Stack(
+      body: Column(
         children: [
-          Column(
-            children: [
-              Container(
-                  height: 200,
-                  padding: EdgeInsets.all(20),
-                  width: MediaQuery.of(context).size.width,
-                  child: isLoading
-                      ? CircularProgressIndicator()
-                      : device != null
-                          ? Container(
-                              child: Column(
-                                children: [
-                                  Text("Device Connected"),
-                                  SizedBox(height: 20),
-                                  Container(
-                                      margin: EdgeInsets.only(bottom: 10),
-                                      child: !deviceState
-                                          ? ElevatedButton(
-                                              child: Text("Start"),
-                                              onPressed: () async {
-                                                setState(() {
-                                                  _serialData.clear();
-                                                  deviceState = !deviceState;
-                                                });
-                                                connect(device);
-                                              },
-                                            )
-                                          : Container(
-                                              height: 20,
-                                              width: 20,
-                                              child:
-                                                  CircularProgressIndicator(),
-                                            )),
-                                  ..._serialData
-                                ],
-                              ),
-                            )
-                          : Center(
-                              child: Text(
-                              "No Device Connected",
-                              style:
-                                  TextStyle(color: Colors.black, fontSize: 20),
-                            ))),
-              SizedBox(height: 30),
-              GestureDetector(
-                onTap: () async {
-                  setState(() {
-                    _isLoadingCamera = !_isLoadingCamera;
-                  });
-                  Map map = await _repo
-                      .getUploadTask(user.uid, true, false, false)
-                      .then((value) {
-                    setState(() {
-                      _uploading = true;
-                    });
-                    return value;
-                  });
-                  uploadTask = map["uploadTask"];
-                  uploadTask.snapshotEvents.listen((event) {
-                    setState(() {
-                      _progress =
-                          ((((event.bytesTransferred.toDouble() / 1024.0) /
-                                          1000) /
-                                      (event.totalBytes.toDouble() / 1024.0) /
-                                      1000) *
-                                  100)
-                              .toDouble();
-                    });
-                  });
-                  await _repo
-                      .uploadToStorage(
-                    map,
-                    widget.call,
-                    "spo2_image",
-                  )
-                      .then((value) {
-                    if (value) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text("Uploaded Succesfully")));
-                    } else {
-                      ScaffoldMessenger.of(context)
-                          .showSnackBar(SnackBar(content: Text("Try Again")));
-                    }
-                    setState(() {
-                      _uploading = false;
-                      _isLoadingCamera = !_isLoadingCamera;
-                    });
-                  });
-                },
-                child: !_isLoadingCamera
+          Container(
+              height: 200,
+              padding: EdgeInsets.all(20),
+              width: MediaQuery.of(context).size.width,
+              child: isLoading
+                  ? CircularProgressIndicator()
+                  : device != null
+                      ? Container(
+                          child: Column(
+                            children: [
+                              Text("Device Connected"),
+                              SizedBox(height: 20),
+                              Container(
+                                  margin: EdgeInsets.only(bottom: 10),
+                                  child: !deviceState
+                                      ? ElevatedButton(
+                                          child: Text("Start"),
+                                          onPressed: () async {
+                                            setState(() {
+                                              _serialData.clear();
+                                              deviceState = !deviceState;
+                                            });
+                                            connect(device);
+                                          },
+                                        )
+                                      : Container(
+                                          height: 20,
+                                          width: 20,
+                                          child: CircularProgressIndicator(),
+                                        )),
+                              ..._serialData
+                            ],
+                          ),
+                        )
+                      : Center(
+                          child: Text(
+                          "No Device Connected",
+                          style: TextStyle(color: Colors.black, fontSize: 20),
+                        ))),
+          SizedBox(height: 30),
+          GestureDetector(
+            onTap: () async {
+              setState(() {
+                _isLoadingCamera = !_isLoadingCamera;
+              });
+              Map map = await _repo
+                  .getUploadTask(
+                      user.uid, true, false, false, true, context, false)
+                  .then((value) {
+                setState(() {
+                  _uploading = true;
+                });
+                return value;
+              });
+              uploadTask = map["uploadTask"];
+              uploadTask.snapshotEvents.listen((event) {
+                setState(() {
+                  _progress =
+                      ((((event.bytesTransferred.toDouble() / 1024.0) / 1000) /
+                                  (event.totalBytes.toDouble() / 1024.0) /
+                                  1000) *
+                              100)
+                          .toDouble();
+                });
+              });
+              await _repo
+                  .uploadToStorage(
+                map,
+                widget.call,
+                "spo2_image",
+              )
+                  .then((value) {
+                if (value) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text("Uploaded Succesfully")));
+                } else {
+                  ScaffoldMessenger.of(context)
+                      .showSnackBar(SnackBar(content: Text("Try Again")));
+                }
+                setState(() {
+                  _uploading = false;
+                  _isLoadingCamera = !_isLoadingCamera;
+                });
+              });
+            },
+            child: !_isLoadingCamera
+                ? Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color: Colors.blue[900],
+                    ),
+                    height: 40,
+                    width: 60,
+                    child: Icon(
+                      Icons.camera,
+                      color: Colors.white,
+                    ))
+                : _uploading
                     ? Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          color: Colors.blue[900],
-                        ),
                         height: 40,
-                        width: 60,
-                        child: Icon(
-                          Icons.camera,
-                          color: Colors.white,
-                        ))
+                        width: 40,
+                        color: Colors.transparent,
+                        child: Center(
+                          child: CircularProgressIndicator(
+                              value: _progress,
+                              backgroundColor: Colors.grey,
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.blue)),
+                        ),
+                      )
                     : Container(
                         height: 40,
                         width: 40,
@@ -248,19 +257,7 @@ class _Spo2ScreenState extends State<Spo2Screen> {
                         child: CircularProgressIndicator(
                           backgroundColor: Colors.white,
                         )),
-              )
-            ],
-          ),
-          _uploading
-              ? Container(
-                  color: Colors.transparent,
-                  child: Center(
-                    child: CircularProgressIndicator(
-                      value: _progress,
-                    ),
-                  ),
-                )
-              : Container()
+          )
         ],
       ),
     );
