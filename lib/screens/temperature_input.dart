@@ -38,8 +38,10 @@ class _TemperatureState extends State<Temperature> {
 
   DeviceUtils dv = DeviceUtils();
   bool _isLoadingCamera = false;
+  bool _isLoadingGallery = false;
   double _progress;
   bool _uploading = false;
+  bool _uploadingGallery = false;
 
   @override
   void initState() {
@@ -185,83 +187,164 @@ class _TemperatureState extends State<Temperature> {
                           style: TextStyle(color: Colors.black, fontSize: 20),
                         ))),
           SizedBox(height: 30),
-          GestureDetector(
-            onTap: () async {
-              setState(() {
-                _isLoadingCamera = !_isLoadingCamera;
-              });
-              Map map = await _repo
-                  .getUploadTask(
-                      user.uid, true, false, false, true, context, false)
-                  .then((value) {
-                setState(() {
-                  _uploading = true;
-                });
-                return value;
-              });
-              uploadTask = map["uploadTask"];
-              uploadTask.snapshotEvents.listen((event) {
-                setState(() {
-                  _progress =
-                      ((((event.bytesTransferred.toDouble() / 1024.0) / 1000) /
-                                  (event.totalBytes.toDouble() / 1024.0) /
-                                  1000) *
-                              100)
-                          .toDouble();
-                });
-              });
-              await _repo
-                  .uploadToStorage(
-                map,
-                widget.call,
-                "temperature_image",
-              )
-                  .then((value) {
-                if (value) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text("Uploaded Succesfully")));
-                } else {
-                  ScaffoldMessenger.of(context)
-                      .showSnackBar(SnackBar(content: Text("Try Again")));
-                }
-                setState(() {
-                  _uploading = false;
-                  _isLoadingCamera = !_isLoadingCamera;
-                });
-              });
-            },
-            child: !_isLoadingCamera
-                ? Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      color: Colors.blue[900],
-                    ),
-                    height: 40,
-                    width: 60,
-                    child: Icon(
-                      Icons.camera,
-                      color: Colors.white,
-                    ))
-                : _uploading
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              GestureDetector(
+                onTap: () async {
+                  setState(() {
+                    _isLoadingCamera = !_isLoadingCamera;
+                  });
+                  Map map = await _repo
+                      .getUploadTask(
+                          user.uid, true, false, false, true, context, false)
+                      .then((value) {
+                    setState(() {
+                      _uploading = true;
+                    });
+                    return value;
+                  });
+                  uploadTask = map["uploadTask"];
+                  uploadTask.snapshotEvents.listen((event) {
+                    setState(() {
+                      _progress =
+                          ((((event.bytesTransferred.toDouble() / 1024.0)) /
+                                  (event.totalBytes.toDouble() / 1024.0)))
+                              .toDouble();
+                      print(_progress);
+                    });
+                  });
+                  await _repo
+                      .uploadToStorage(
+                    map,
+                    widget.call,
+                    "temperature_image",
+                  )
+                      .then((value) {
+                    if (value) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text("Uploaded Succesfully")));
+                    } else {
+                      ScaffoldMessenger.of(context)
+                          .showSnackBar(SnackBar(content: Text("Try Again")));
+                    }
+                    setState(() {
+                      _uploading = false;
+                      _isLoadingCamera = !_isLoadingCamera;
+                    });
+                  });
+                },
+                child: !_isLoadingCamera
                     ? Container(
-                        height: 40,
-                        width: 40,
-                        color: Colors.transparent,
-                        child: Center(
-                          child: CircularProgressIndicator(
-                              value: _progress,
-                              backgroundColor: Colors.grey,
-                              valueColor:
-                                  AlwaysStoppedAnimation<Color>(Colors.blue)),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          color: Colors.blue[900],
                         ),
-                      )
-                    : Container(
                         height: 40,
-                        width: 40,
-                        padding: EdgeInsets.all(10),
-                        child: CircularProgressIndicator(
-                          backgroundColor: Colors.white,
-                        )),
+                        width: 60,
+                        child: Icon(
+                          Icons.camera,
+                          color: Colors.white,
+                        ))
+                    : _uploading
+                        ? Container(
+                            height: 40,
+                            width: 40,
+                            color: Colors.transparent,
+                            child: Center(
+                              child: CircularProgressIndicator(
+                                  value: _progress,
+                                  backgroundColor: Colors.grey,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.blue)),
+                            ),
+                          )
+                        : Container(
+                            height: 40,
+                            width: 40,
+                            padding: EdgeInsets.all(10),
+                            child: CircularProgressIndicator(
+                              backgroundColor: Colors.white,
+                            )),
+              ),
+              SizedBox(width: 20),
+              GestureDetector(
+                onTap: () async {
+                  setState(() {
+                    _isLoadingGallery = !_isLoadingGallery;
+                  });
+                  Map map = await _repo
+                      .getUploadTask(
+                          user.uid, false, true, false, true, context, false)
+                      .then((value) {
+                    setState(() {
+                      _uploadingGallery = true;
+                    });
+                    return value;
+                  });
+                  uploadTask = map["uploadTask"];
+                  uploadTask.snapshotEvents.listen((event) {
+                    setState(() {
+                      _progress =
+                          ((((event.bytesTransferred.toDouble() / 1024.0)) /
+                                  (event.totalBytes.toDouble() / 1024.0)))
+                              .toDouble();
+                    });
+                  });
+                  await _repo
+                      .uploadToStorage(
+                    map,
+                    widget.call,
+                    "temperature_image",
+                  )
+                      .then((value) {
+                    if (value) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text("Uploaded Succesfully")));
+                    } else {
+                      ScaffoldMessenger.of(context)
+                          .showSnackBar(SnackBar(content: Text("Try Again")));
+                    }
+                    setState(() {
+                      _uploadingGallery = false;
+                      _isLoadingGallery = !_isLoadingGallery;
+                    });
+                  });
+                },
+                child: !_isLoadingGallery
+                    ? Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          color: Colors.blue[900],
+                        ),
+                        height: 40,
+                        width: 60,
+                        child: Icon(
+                          Icons.upload_file,
+                          color: Colors.white,
+                        ))
+                    : _uploadingGallery
+                        ? Container(
+                            height: 40,
+                            width: 40,
+                            color: Colors.transparent,
+                            child: Center(
+                              child: CircularProgressIndicator(
+                                  value: _progress,
+                                  backgroundColor: Colors.grey,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.blue)),
+                            ),
+                          )
+                        : Container(
+                            height: 40,
+                            width: 40,
+                            padding: EdgeInsets.all(10),
+                            child: CircularProgressIndicator(
+                              backgroundColor: Colors.white,
+                            )),
+              )
+            ],
           )
         ],
       ),

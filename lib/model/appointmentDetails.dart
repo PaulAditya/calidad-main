@@ -16,7 +16,8 @@ class AppointmentDetails {
   AppointmentDetails({this.uid, this.rx, this.patientDetails, this.doctor});
 
   AppointmentDetails.fromMap(Map map) {
-    if (map["rx"] != null) this.rx = map["rx"];
+    if (map["rx"] != null && map["rx"].toString().length > 0)
+      this.rx = map["rx"];
     this.patientDetails = Patient.fromMap(map["patient_details"]);
     this.uid = map["patient_id"];
     this.doctor = map["doctor"];

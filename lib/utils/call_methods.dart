@@ -19,7 +19,8 @@ class CallMethods {
   List<dynamic> xtra_files = [];
   List<dynamic> ecg = [];
   List<dynamic> eye_pdf = [];
-
+  List<dynamic> temperature_image = [];
+  List<dynamic> spo2_image = [];
   Future<bool> makeCall({Call call}) async {
     try {
       Map<String, dynamic> map = call.toMap(call);
@@ -106,11 +107,11 @@ class CallMethods {
         String bpReading = url;
         vitals[name] = bpReading;
       } else if (name == "spo2_image") {
-        String image = url;
-        vitals[name] = image;
+        spo2_image.add(url);
+        vitals[name] = spo2_image;
       } else if (name == "temperature_image") {
-        String temp = url;
-        vitals[name] = temp;
+        temperature_image.add(url);
+        vitals[name] = temperature_image;
       } else if (name == "xtra_files") {
         xtra_files.add(url);
         vitals[name] = xtra_files;

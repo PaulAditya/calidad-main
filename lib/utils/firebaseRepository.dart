@@ -4,7 +4,7 @@ import 'package:calidad_app/model/doctor.dart';
 import 'package:calidad_app/model/patient.dart';
 import 'package:calidad_app/model/user.dart';
 import 'package:calidad_app/utils/firebaseMethods.dart';
-import 'package:firebase_storage/firebase_storage.dart';
+
 import 'package:flutter/cupertino.dart';
 
 class FirebaseRepository {

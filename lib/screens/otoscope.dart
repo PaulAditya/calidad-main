@@ -6,7 +6,6 @@ import 'package:external_app_launcher/external_app_launcher.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'package:provider/provider.dart';
 
@@ -190,11 +189,11 @@ class _OtoscopeState extends State<Otoscope> {
                                   Map task = await _repo.getUploadTask(
                                       user.getUser.uid,
                                       false,
-                                      widget.gallery,
+                                      widget.gallery && widget.camera,
                                       false,
                                       false,
                                       context,
-                                      false);
+                                      widget.description);
 
                                   if (task != null) {
                                     setState(() {
@@ -278,7 +277,7 @@ class _OtoscopeState extends State<Otoscope> {
                                       true,
                                       false,
                                       context,
-                                      true);
+                                      widget.description);
 
                                   setState(() {
                                     _uploading = true;
