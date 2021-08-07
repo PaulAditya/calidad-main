@@ -195,44 +195,46 @@ class _TemperatureState extends State<Temperature> {
                   setState(() {
                     _isLoadingCamera = !_isLoadingCamera;
                   });
-                  Map map = await _repo
-                      .getUploadTask(
-                          user.uid, true, false, false, true, context, false)
-                      .then((value) {
+                  Map map = await _repo.getUploadTask(
+                      user.uid, true, false, false, true, context, false);
+
+                  if (map != null) {
                     setState(() {
                       _uploading = true;
                     });
-                    return value;
-                  });
-                  uploadTask = map["uploadTask"];
-                  uploadTask.snapshotEvents.listen((event) {
-                    setState(() {
-                      _progress =
-                          ((((event.bytesTransferred.toDouble() / 1024.0)) /
-                                  (event.totalBytes.toDouble() / 1024.0)))
-                              .toDouble();
-                      print(_progress);
+                    uploadTask = map["uploadTask"];
+                    uploadTask.snapshotEvents.listen((event) {
+                      setState(() {
+                        _progress =
+                            ((((event.bytesTransferred.toDouble() / 1024.0)) /
+                                    (event.totalBytes.toDouble() / 1024.0)))
+                                .toDouble();
+                      });
                     });
-                  });
-                  await _repo
-                      .uploadToStorage(
-                    map,
-                    widget.call,
-                    "temperature_image",
-                  )
-                      .then((value) {
-                    if (value) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text("Uploaded Succesfully")));
-                    } else {
-                      ScaffoldMessenger.of(context)
-                          .showSnackBar(SnackBar(content: Text("Try Again")));
-                    }
-                    setState(() {
-                      _uploading = false;
-                      _isLoadingCamera = !_isLoadingCamera;
+                    _repo
+                        .uploadToStorage(
+                      map,
+                      widget.call,
+                      "temperature_image",
+                    )
+                        .then((value) {
+                      if (value) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text("Uploaded Succesfully")));
+                      } else {
+                        ScaffoldMessenger.of(context)
+                            .showSnackBar(SnackBar(content: Text("Try Again")));
+                      }
+                      setState(() {
+                        _uploading = false;
+                        _isLoadingCamera = !_isLoadingCamera;
+                      });
                     });
-                  });
+                  } else {
+                    setState(() {
+                      _isLoadingCamera = false;
+                    });
+                  }
                 },
                 child: !_isLoadingCamera
                     ? Container(
@@ -273,43 +275,46 @@ class _TemperatureState extends State<Temperature> {
                   setState(() {
                     _isLoadingGallery = !_isLoadingGallery;
                   });
-                  Map map = await _repo
-                      .getUploadTask(
-                          user.uid, false, true, false, true, context, false)
-                      .then((value) {
+                  Map map = await _repo.getUploadTask(
+                      user.uid, true, true, false, true, context, false);
+
+                  if (map != null) {
                     setState(() {
                       _uploadingGallery = true;
                     });
-                    return value;
-                  });
-                  uploadTask = map["uploadTask"];
-                  uploadTask.snapshotEvents.listen((event) {
-                    setState(() {
-                      _progress =
-                          ((((event.bytesTransferred.toDouble() / 1024.0)) /
-                                  (event.totalBytes.toDouble() / 1024.0)))
-                              .toDouble();
+                    uploadTask = map["uploadTask"];
+                    uploadTask.snapshotEvents.listen((event) {
+                      setState(() {
+                        _progress =
+                            ((((event.bytesTransferred.toDouble() / 1024.0)) /
+                                    (event.totalBytes.toDouble() / 1024.0)))
+                                .toDouble();
+                      });
                     });
-                  });
-                  await _repo
-                      .uploadToStorage(
-                    map,
-                    widget.call,
-                    "temperature_image",
-                  )
-                      .then((value) {
-                    if (value) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text("Uploaded Succesfully")));
-                    } else {
-                      ScaffoldMessenger.of(context)
-                          .showSnackBar(SnackBar(content: Text("Try Again")));
-                    }
-                    setState(() {
-                      _uploadingGallery = false;
-                      _isLoadingGallery = !_isLoadingGallery;
+                    _repo
+                        .uploadToStorage(
+                      map,
+                      widget.call,
+                      "temperature_image",
+                    )
+                        .then((value) {
+                      if (value) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text("Uploaded Succesfully")));
+                      } else {
+                        ScaffoldMessenger.of(context)
+                            .showSnackBar(SnackBar(content: Text("Try Again")));
+                      }
+                      setState(() {
+                        _uploadingGallery = false;
+                        _isLoadingGallery = !_isLoadingGallery;
+                      });
                     });
-                  });
+                  } else {
+                    setState(() {
+                      _isLoadingGallery = false;
+                    });
+                  }
                 },
                 child: !_isLoadingGallery
                     ? Container(

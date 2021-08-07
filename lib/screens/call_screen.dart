@@ -331,7 +331,7 @@ class _CallScreenState extends State<CallScreen> {
                       MaterialPageRoute(
                           builder: (context) => Prescription(
                                 rx: value,
-                                patient: widget.call.callerName,
+                                patient: widget.call.patient['name'],
                                 doctor: widget.call.receiverName,
                               )));
                 }

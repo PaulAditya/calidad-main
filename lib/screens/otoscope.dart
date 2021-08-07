@@ -188,8 +188,8 @@ class _OtoscopeState extends State<Otoscope> {
 
                                   Map task = await _repo.getUploadTask(
                                       user.getUser.uid,
-                                      false,
-                                      widget.gallery && widget.camera,
+                                      widget.camera,
+                                      true,
                                       false,
                                       false,
                                       context,

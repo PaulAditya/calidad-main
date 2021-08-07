@@ -9,17 +9,14 @@ import 'package:calidad_app/model/user.dart';
 import 'package:calidad_app/utils/call_utils.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:image_picker/image_picker.dart';
 
 class FirebaseMethods {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  GoogleSignIn _googleSignIn = GoogleSignIn();
   static final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   static final CollectionReference _doctorCollection =
@@ -31,77 +28,6 @@ class FirebaseMethods {
   static final CollectionReference _callDetailsCollection =
       _firestore.collection("callDetails");
   Users users = Users();
-
-  Future<Users> getCurrentUser() async {
-    User firebaseUser;
-    Users user;
-    try {
-      firebaseUser = _auth.currentUser;
-      user = users.fromUser(firebaseUser);
-    } catch (e) {
-      print(e);
-    }
-    return user;
-  }
-
-  Future<Users> signInWithEmailPass(String email, String password) async {
-    Users user;
-    try {
-      UserCredential cred = await _auth.signInWithEmailAndPassword(
-          email: email, password: password);
-      User firebaseUser = cred.user;
-      user = users.fromUser(firebaseUser);
-    } catch (e) {
-      print(e);
-    }
-    return user;
-  }
-
-  Future<Users> signUpWithEmailPassword(String email, String password) async {
-    Users user;
-    try {
-      UserCredential cred = await _auth.createUserWithEmailAndPassword(
-          email: email, password: password);
-
-      User firebaseUser = cred.user;
-      user = users.fromUser(firebaseUser);
-      return user;
-    } catch (e) {
-      print(e);
-    }
-    return user;
-  }
-
-  Future<bool> authenticateUser(Users user) async {
-    try {
-      QuerySnapshot result =
-          await _userCollection.where("email", isEqualTo: user.email).get();
-
-      final List<DocumentSnapshot> docs = result.docs;
-
-      return docs.length == 0 ? false : true;
-    } catch (e) {
-      print(e);
-    }
-    return false;
-  }
-
-  Future<bool> addDataToDb(Users currentUser) async {
-    try {
-      Users user = Users(
-          uid: currentUser.uid,
-          email: currentUser.email,
-          profilePhoto: currentUser.profilePhoto,
-          username: currentUser.username,
-          patients: <Map>[]);
-
-      _userCollection.doc(currentUser.uid).set(users.toMap(user));
-      return true;
-    } catch (e) {
-      print(e);
-    }
-    return false;
-  }
 
   Future<bool> addPatient(Patient patient, String uid) async {
     try {
@@ -148,31 +74,6 @@ class FirebaseMethods {
       print(e);
     }
     return null;
-  }
-
-  Future<Users> signInWithGoogle() async {
-    Users user;
-    try {
-      GoogleSignInAccount _signInAccount = await _googleSignIn.signIn();
-      GoogleSignInAuthentication _signInAuthentication =
-          await _signInAccount.authentication;
-
-      final AuthCredential credential = GoogleAuthProvider.credential(
-          accessToken: _signInAuthentication.accessToken,
-          idToken: _signInAuthentication.idToken);
-
-      UserCredential authResult = await _auth.signInWithCredential(credential);
-      User firebaseUser = authResult.user;
-      user = users.fromUser(firebaseUser);
-    } catch (e) {
-      print(e);
-    }
-    return user;
-  }
-
-  Future<void> signOut() async {
-    await _googleSignIn.signOut();
-    return await _auth.signOut();
   }
 
   Future<String> getPrescription(Call call) async {
@@ -255,271 +156,136 @@ class FirebaseMethods {
     return false;
   }
 
-  Future<Map> getUploadTask(String uid, bool camera, bool galleryCam, bool pdf,
+  Future<Map> getUploadTask(String uid, bool camera, bool gallery, bool pdf,
       bool lowQuality, BuildContext context, bool description) async {
     try {
-      final DateTime now = DateTime.now();
-      final int millSeconds = now.millisecondsSinceEpoch;
-      final String month = now.month.toString();
-      final String date = now.day.toString();
-      final String storageId = (millSeconds.toString() + uid);
-      final String today = ('$month-$date');
       ImagePicker img = ImagePicker();
-
-      UploadTask uploadTask;
-      Reference ref;
+      var pickedFile;
       Map map = new Map();
-
-      if (camera) {
-        PickedFile pickedFile = await img.getImage(source: ImageSource.camera);
-        if (pickedFile != null) {
-          if (description) {
-            TextEditingController _desc = new TextEditingController();
-            await showDialog(
-                context: context,
-                builder: (context) {
-                  return AlertDialog(
-                    title: Text("Enter Description"),
-                    content: TextFormField(
-                      controller: _desc,
-                      decoration: InputDecoration(
-                          labelText: 'Description',
-                          labelStyle: GoogleFonts.montserrat(
-                            color: Colors.grey,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          focusedBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(color: Colors.blue[900]))),
-                    ),
-                    actions: [
-                      TextButton(
-                          onPressed: () {
-                            if (_desc.text.length == 0) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                      content:
-                                          Text("Description cannot be empty")));
-                            } else {
-                              File file = File(pickedFile.path);
-                              ref = FirebaseStorage.instance
-                                  .ref()
-                                  .child("image")
-                                  .child(today)
-                                  .child(storageId);
-                              uploadTask = ref.putFile(file,
-                                  SettableMetadata(contentType: 'image/jpeg'));
-                              if (uploadTask != null) {
-                                map["uploadTask"] = uploadTask;
-                                map["ref"] = ref;
-                                map["description"] = _desc.text;
-                              }
-
-                              Navigator.pop(context);
-                            }
-                          },
-                          child: Text("Ok")),
-                      TextButton(
-                          onPressed: () {
-                            map = null;
-                            Navigator.pop(context);
-                          },
-                          child: Text("Cancel"))
-                    ],
-                  );
-                });
-          } else {
-            File file = File(pickedFile.path);
-
-            ref = FirebaseStorage.instance
-                .ref()
-                .child("image")
-                .child(today)
-                .child(storageId);
-            uploadTask =
-                ref.putFile(file, SettableMetadata(contentType: 'image/jpeg'));
-            map["uploadTask"] = uploadTask;
-            map["ref"] = ref;
-          }
-
-          return map;
-        } else {
-          return null;
-        }
-      } else if (pdf) {
-        FilePickerResult res = await FilePicker.platform
+      String contentType = pdf
+          ? "document"
+          : camera
+              ? "image"
+              : "video";
+      if (pdf) {
+        pickedFile = await FilePicker.platform
             .pickFiles(type: FileType.custom, allowedExtensions: ["pdf"]);
-        if (res != null) {
-          if (description) {
-            TextEditingController _desc = new TextEditingController();
-            await showDialog(
-                context: context,
-                builder: (context) {
-                  return AlertDialog(
-                    title: Text("Enter Description"),
-                    content: TextFormField(
-                      controller: _desc,
-                      decoration: InputDecoration(
-                          labelText: 'Description',
-                          labelStyle: GoogleFonts.montserrat(
-                            color: Colors.grey,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          focusedBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(color: Colors.blue[900]))),
-                    ),
-                    actions: [
-                      TextButton(
-                          onPressed: () {
-                            if (_desc.text.length == 0) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                      content:
-                                          Text("Description cannot be empty")));
-                            } else {
-                              File file = File(res.files.single.path);
-                              ref = FirebaseStorage.instance
-                                  .ref()
-                                  .child("document")
-                                  .child(today)
-                                  .child(storageId);
-                              uploadTask = ref.putData(file.readAsBytesSync());
-                              if (uploadTask != null) {
-                                map["uploadTask"] = uploadTask;
-                                map["ref"] = ref;
-                                map["description"] = _desc.text;
-                              }
-
-                              Navigator.pop(context);
-                            }
-                          },
-                          child: Text("Ok")),
-                      TextButton(
-                          onPressed: () {
-                            map = null;
-                            Navigator.pop(context);
-                          },
-                          child: Text("Cancel"))
-                    ],
-                  );
-                });
-          } else {
-            File file = File(res.files.single.path);
-            ref = FirebaseStorage.instance
-                .ref()
-                .child("document")
-                .child(today)
-                .child(storageId);
-            uploadTask = ref.putData(file.readAsBytesSync());
-            if (uploadTask != null) {
-              map["uploadTask"] = uploadTask;
-              map["ref"] = ref;
-            }
-          }
-
-          return map;
-        } else {
-          return null;
-        }
-      } else if (!galleryCam) {
-        return img.getVideo(source: ImageSource.gallery).then((value) {
-          if (value != null) {
-            File file = File(value.path);
-
-            ref = FirebaseStorage.instance
-                .ref()
-                .child("video")
-                .child(today)
-                .child(storageId);
-            uploadTask =
-                ref.putFile(file, SettableMetadata(contentType: 'video/mp4'));
-
-            if (uploadTask != null) {
-              map["uploadTask"] = uploadTask;
-              map["ref"] = ref;
-            }
-
-            return map;
-          }
-          return null;
-        });
-      } else if (galleryCam) {
-        PickedFile pickedFile = await img.getImage(source: ImageSource.gallery);
-        if (pickedFile != null) {
-          if (description) {
-            TextEditingController _desc = new TextEditingController();
-            await showDialog(
-                context: context,
-                builder: (context) {
-                  return AlertDialog(
-                    title: Text("Enter Description"),
-                    content: TextFormField(
-                      controller: _desc,
-                      decoration: InputDecoration(
-                          labelText: 'Description',
-                          labelStyle: GoogleFonts.montserrat(
-                            color: Colors.grey,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          focusedBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(color: Colors.blue[900]))),
-                    ),
-                    actions: [
-                      TextButton(
-                          onPressed: () {
-                            if (_desc.text.length == 0) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                      content:
-                                          Text("Description cannot be empty")));
-                            } else {
-                              File file = File(pickedFile.path);
-                              ref = FirebaseStorage.instance
-                                  .ref()
-                                  .child("image")
-                                  .child(today)
-                                  .child(storageId);
-                              uploadTask = ref.putFile(file,
-                                  SettableMetadata(contentType: 'image/jpeg'));
-                              if (uploadTask != null) {
-                                map["uploadTask"] = uploadTask;
-                                map["ref"] = ref;
-                                map["description"] = _desc.text;
-                              }
-
-                              Navigator.pop(context);
-                            }
-                          },
-                          child: Text("Ok")),
-                      TextButton(
-                          onPressed: () {
-                            map = null;
-                            Navigator.pop(context);
-                          },
-                          child: Text("Cancel"))
-                    ],
-                  );
-                });
-          } else {
-            File file = File(pickedFile.path);
-
-            ref = FirebaseStorage.instance
-                .ref()
-                .child("image")
-                .child(today)
-                .child(storageId);
-            uploadTask =
-                ref.putFile(file, SettableMetadata(contentType: 'image/jpeg'));
-            map["uploadTask"] = uploadTask;
-            map["ref"] = ref;
-          }
-
-          return map;
-        } else {
-          return null;
-        }
+      } else {
+        pickedFile = camera
+            ? await img.getImage(
+                source: gallery ? ImageSource.gallery : ImageSource.camera,
+                imageQuality: lowQuality ? 50 : 100)
+            : await img.getVideo(source: ImageSource.gallery);
       }
-    } catch (error) {
-      print(error);
+      if (pickedFile != null) {
+        if (description) {
+          TextEditingController _desc = new TextEditingController();
+          await showDialog(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  title: Text("Enter Description"),
+                  content: TextFormField(
+                    controller: _desc,
+                    decoration: InputDecoration(
+                        labelText: 'Description',
+                        labelStyle: GoogleFonts.montserrat(
+                          color: Colors.grey,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        focusedBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: Colors.blue[900]))),
+                  ),
+                  actions: [
+                    TextButton(
+                        onPressed: () {
+                          if (_desc.text.length == 0) {
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                content: Text("Description cannot be empty")));
+                          } else {
+                            map = getMapfromPickedFile(
+                                pickedFile, uid, contentType, _desc.text);
+
+                            Navigator.pop(context);
+                          }
+                        },
+                        child: Text("Ok")),
+                    TextButton(
+                        onPressed: () {
+                          map = null;
+                          Navigator.pop(context);
+                        },
+                        child: Text("Cancel"))
+                  ],
+                );
+              });
+        } else if (gallery) {
+          await showDialog(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  title: Text("Confirm"),
+                  actions: [
+                    TextButton(
+                        onPressed: () {
+                          map = getMapfromPickedFile(
+                              pickedFile, uid, contentType, null);
+
+                          Navigator.pop(context);
+                        },
+                        child: Text("Ok")),
+                    TextButton(
+                        onPressed: () {
+                          map = null;
+                          Navigator.pop(context);
+                        },
+                        child: Text("Cancel"))
+                  ],
+                );
+              });
+        } else {
+          map = getMapfromPickedFile(pickedFile, uid, contentType, null);
+        }
+        return map;
+      } else {
+        return null;
+      }
+    } catch (e) {
+      print(e);
+    }
+    return null;
+  }
+
+  Map getMapfromPickedFile(
+      dynamic pickedFile, String uid, String fileType, String description) {
+    UploadTask uploadTask;
+    Reference ref;
+    final DateTime now = DateTime.now();
+    final int millSeconds = now.millisecondsSinceEpoch;
+    final String month = now.month.toString();
+    final String date = now.day.toString();
+    final String storageId = (millSeconds.toString() + uid);
+    final String today = ('$month-$date');
+    Map map = new Map();
+    String contentType = fileType == "image" ? 'image/jpeg' : 'video/mp4';
+    File file = fileType == "document"
+        ? File(pickedFile.files.single.path)
+        : File(pickedFile.path);
+    ref = FirebaseStorage.instance
+        .ref()
+        .child(fileType)
+        .child(today)
+        .child(storageId);
+    uploadTask = fileType == "document"
+        ? ref.putData(file.readAsBytesSync())
+        : ref.putFile(file, SettableMetadata(contentType: contentType));
+    if (uploadTask != null) {
+      map["uploadTask"] = uploadTask;
+      map["ref"] = ref;
+      if (description != null) {
+        map["description"] = description;
+      }
+      return map;
     }
     return null;
   }

@@ -143,6 +143,8 @@ class CallMethods {
       otoscope.clear();
       skin_image.clear();
       xtra_files.clear();
+      temperature_image.clear();
+      spo2_image.clear();
 
       await callCollection.doc(call.receiverId).delete();
       return true;
