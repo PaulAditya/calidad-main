@@ -76,18 +76,41 @@ class FirebaseMethods {
     return null;
   }
 
-  Future<String> getPrescription(Call call) async {
-    String rx;
-    CollectionReference callDetailCollection =
-        FirebaseFirestore.instance.collection("callDetails");
+  Future<Map> getPrescription(String doctorId, String userId, String channelId,
+      String patientId) async {
+    try {
+      String docId =
+          doctorId + "-" + userId + "_" + patientId + "-" + channelId;
+      var value = await _callDetailsCollection.doc(docId).get();
 
-    String docId = "${call.receiverId}-${call.callerId}-${call.channelId}";
-    var value = await callDetailCollection.doc(docId).get();
+      CallDetails details = CallDetails.fromMap(value.data());
+      if (details.rx != null) {
+        Patient patient = await getPatientById(userId, patientId);
+        Doctor doctor = await getDoctorDetails(doctorId);
 
-    CallDetails details = CallDetails.fromMap(value.data());
-    rx = details.rx;
+        Map prescriptionDetail = new Map();
+        prescriptionDetail["doctor"] = doctor;
+        prescriptionDetail["patient"] = patient;
+        prescriptionDetail["callDetails"] = details;
 
-    return rx;
+        return prescriptionDetail;
+      }
+      return null;
+    } catch (e) {
+      print(e);
+    }
+    return null;
+  }
+
+  Future<Doctor> getDoctorDetails(String doctorId) async {
+    try {
+      DocumentSnapshot result = await _doctorCollection.doc(doctorId).get();
+      Doctor doctor = Doctor.fromMap(result.data());
+      return doctor;
+    } catch (e) {
+      print(e);
+    }
+    return null;
   }
 
   Future<bool> deletePatient(int index, String uid) async {
@@ -118,16 +141,83 @@ class FirebaseMethods {
     return doctors;
   }
 
+  Future<bool> addDoctorAccess(
+      String uid, String patientId, String doctorId) async {
+    try {
+      Patient patient = await getPatientById(uid, patientId);
+
+      if (patient.allowedDoctors == null) patient.allowedDoctors = [];
+      patient.allowedDoctors.add(doctorId);
+      DocumentSnapshot ds = await _userCollection.doc(uid).get();
+      Users user = Users.fromMap(ds.data());
+      int index =
+          user.patients.indexWhere((element) => element["id"] == patientId);
+      user.patients[index] = patient.toJson();
+      await _userCollection.doc(uid).update({'patients': user.patients});
+      return true;
+    } catch (e) {
+      print(e);
+    }
+    return false;
+  }
+
+  Future<bool> doctorEHRAccess(
+      String uid, String patientId, String doctorId) async {
+    try {
+      List allowedDoctors = await getAllowedDoctors(uid, patientId);
+
+      return allowedDoctors == null ? false : allowedDoctors.contains(doctorId);
+    } catch (e) {
+      print(e);
+    }
+    return false;
+  }
+
+  Future<Patient> getPatientById(String uid, String patientId) async {
+    try {
+      DocumentSnapshot ds = await _userCollection.doc(uid).get();
+      Users user = Users.fromMap(ds.data());
+
+      Patient patient;
+      user.patients.forEach((element) {
+        Patient p = Patient.fromMap(element);
+        if (p.id == patientId) {
+          patient = p;
+        }
+      });
+
+      return patient;
+    } catch (e) {
+      print(e);
+    }
+    return null;
+  }
+
+  Future<List> getAllowedDoctors(String uid, String patientId) async {
+    try {
+      Patient patient = await getPatientById(uid, patientId);
+      return patient.allowedDoctors;
+    } catch (e) {
+      print(e);
+    }
+    return null;
+  }
+
   Future<List<AppointmentDetails>> getHistory(String uid) async {
     QuerySnapshot qs =
         await _callDetailsCollection.where("user_id", isEqualTo: uid).get();
     List<DocumentSnapshot> docs = qs.docs;
-    List<AppointmentDetails> app_details = new List();
+    List<AppointmentDetails> appDetails = new List();
     for (var i = 0; i < docs.length; i++) {
-      app_details.add(AppointmentDetails.fromMap(docs[i].data()));
+      Map details = new Map();
+      details = docs[i].data();
+      List str = docs[i].id.split("-");
+      String channelId = str[2];
+      details["channel_id"] = channelId;
+      appDetails.add(AppointmentDetails.fromMap(details));
     }
 
-    return app_details;
+    return appDetails;
   }
 
   Future<bool> uploadToStorage(Map map, Call call, String fileName) async {

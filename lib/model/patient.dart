@@ -8,9 +8,19 @@ class Patient {
   String mobile;
   String location;
   String email;
+  List allowedDoctors;
 
-  Patient(String id, String name, String age, String weight, String height,
-      String gender, String mobile, String email, String location) {
+  Patient(
+      String id,
+      String name,
+      String age,
+      String weight,
+      String height,
+      String gender,
+      String mobile,
+      String email,
+      String location,
+      List allowedDoctors) {
     this.id = id;
     this.name = name;
     this.age = age;
@@ -20,6 +30,7 @@ class Patient {
     this.mobile = mobile;
     this.email = email;
     this.location = location;
+    this.allowedDoctors = allowedDoctors;
   }
 
   Map toJson() => {
@@ -32,6 +43,7 @@ class Patient {
         'mobile': mobile,
         'location': location,
         "email": email,
+        "allowedDoctors": allowedDoctors
       };
 
   Patient.fromMap(Map<String, dynamic> mapData) {
@@ -44,5 +56,6 @@ class Patient {
     this.mobile = mapData['mobile'];
     this.email = mapData['email'];
     this.location = mapData['location'];
+    this.allowedDoctors = mapData['allowedDoctors'];
   }
 }

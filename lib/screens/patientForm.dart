@@ -209,7 +209,8 @@ class _PatientFormState extends State<PatientForm> {
                             _gender.toString().split('.').last,
                             _mobile.text,
                             _email.text,
-                            _location.text);
+                            _location.text,
+                            []);
 
                         if (widget.patient == null) {
                           _repo.addPatient(p, user.uid).then((value) {

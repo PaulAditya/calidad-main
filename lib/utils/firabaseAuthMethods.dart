@@ -8,14 +8,9 @@ class FirebaseAuthMethods {
   GoogleSignIn _googleSignIn = GoogleSignIn();
   static final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  static final CollectionReference _doctorCollection =
-      _firestore.collection("doctors");
-
   static final CollectionReference _userCollection =
       _firestore.collection("users");
 
-  static final CollectionReference _callDetailsCollection =
-      _firestore.collection("callDetails");
   Users users = Users();
 
   Future<Users> getCurrentUser() async {

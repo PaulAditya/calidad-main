@@ -71,17 +71,19 @@ class _HistoryState extends State<History> {
                                     color: Colors.black,
                                   )),
                               child: ListTile(
-                                onTap: () {
+                                onTap: () async {
                                   if (history[index].rx != null) {
+                                    Map calldetails =
+                                        await _repo.getPrescription(
+                                            history[index].doctorId,
+                                            history[index].uid,
+                                            history[index].channeId,
+                                            history[index].patientDetails.id);
                                     Navigator.push(
                                         context,
                                         MaterialPageRoute(
                                             builder: (context) => Prescription(
-                                                  rx: history[index].rx,
-                                                  patient: history[index]
-                                                      .patientDetails
-                                                      .name,
-                                                  doctor: history[index].doctor,
+                                                  callDetails: calldetails,
                                                 )));
                                   } else {
                                     ScaffoldMessenger.of(context).showSnackBar(

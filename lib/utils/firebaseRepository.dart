@@ -21,8 +21,9 @@ class FirebaseRepository {
 
   Future<List<Doctor>> getDoctors() => _firebaseMethods.getDoctors();
 
-  Future<String> getPrescription(call) =>
-      _firebaseMethods.getPrescription(call);
+  Future<Map> getPrescription(
+          String doctorId, String userId, String channelId, String patientId) =>
+      _firebaseMethods.getPrescription(doctorId, userId, channelId, patientId);
 
   Future<Users> signUpWithEmailPassword(String email, String password) =>
       _firebaseAuthMethods.signUpWithEmailPassword(email, password);
@@ -39,6 +40,15 @@ class FirebaseRepository {
   Future<List<Map>> getPatients(String uid) =>
       _firebaseMethods.getPatients(uid);
 
+  Future<Doctor> getDoctorDetails(String doctorId) =>
+      _firebaseMethods.getDoctorDetails(doctorId);
+
+  Future<bool> addDoctorAccess(String uid, String patientId, String doctorId) =>
+      _firebaseMethods.addDoctorAccess(uid, patientId, doctorId);
+
+  Future<bool> doctorEHRAccess(String uid, String patientId, String doctorId) =>
+      _firebaseMethods.doctorEHRAccess(uid, patientId, doctorId);
+
   Future<List<AppointmentDetails>> getHistory(String uid) =>
       _firebaseMethods.getHistory(uid);
 
@@ -50,6 +60,9 @@ class FirebaseRepository {
 
   Future<bool> uploadToStorage(Map map, Call call, String fileName) =>
       _firebaseMethods.uploadToStorage(map, call, fileName);
+
+  Future<List> getAllowedDoctors(String uid, String patientId) =>
+      _firebaseMethods.getAllowedDoctors(uid, patientId);
 
   Future<Map> getUploadTask(String uid, bool camera, bool galleryCam, bool pdf,
           bool lowQuality, BuildContext context, bool desc) =>

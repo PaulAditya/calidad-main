@@ -1,5 +1,6 @@
 import 'package:calidad_app/model/call.dart';
 import 'package:calidad_app/screens/ecg.dart';
+import 'package:calidad_app/screens/ehr_access.dart';
 import 'package:calidad_app/screens/otoscope.dart';
 import 'package:calidad_app/screens/peak_flow.dart';
 import 'package:calidad_app/screens/prescription.dart';
@@ -14,7 +15,7 @@ import 'package:google_fonts/google_fonts.dart';
 class AddVitalModal extends StatelessWidget {
   final Call call;
   final bool rx;
-  final String pres;
+  final Map pres;
 
   const AddVitalModal(
       {Key key, @required this.call, @required this.rx, @required this.pres})
@@ -173,6 +174,14 @@ class AddVitalModal extends StatelessWidget {
                       call: call,
                     )),
                 DeviceCard(
+                    image: 'assets/e.png',
+                    title: 'EHR access',
+                    page: EHRAccess(
+                      uid: call.userId,
+                      patientId: call.patient["id"],
+                      doctorId: call.receiverId,
+                    )),
+                DeviceCard(
                     image: 'assets/peekflow.jpg',
                     title: 'Peakflow',
                     page: PeakFlow(
@@ -188,9 +197,7 @@ class AddVitalModal extends StatelessWidget {
                         context,
                         MaterialPageRoute(
                             builder: (context) => Prescription(
-                                  rx: pres,
-                                  patient: call.callerName,
-                                  doctor: call.receiverName,
+                                  callDetails: pres,
                                 )));
                   }
                 : null,

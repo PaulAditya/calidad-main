@@ -321,7 +321,11 @@ class _CallScreenState extends State<CallScreen> {
               );
 
               if (res) {
-                var value = await repo.getPrescription(widget.call);
+                var value = await repo.getPrescription(
+                    widget.call.receiverId,
+                    widget.call.callerId,
+                    widget.call.channelId,
+                    widget.call.patient["id"]);
 
                 if (value == null) {
                   Navigator.pop(context);
@@ -330,9 +334,7 @@ class _CallScreenState extends State<CallScreen> {
                       context,
                       MaterialPageRoute(
                           builder: (context) => Prescription(
-                                rx: value,
-                                patient: widget.call.patient['name'],
-                                doctor: widget.call.receiverName,
+                                callDetails: value,
                               )));
                 }
               }
@@ -362,7 +364,10 @@ class _CallScreenState extends State<CallScreen> {
           ),
           RawMaterialButton(
             onPressed: () async {
-              await repo.getPrescription(widget.call).then((value) {
+              await repo
+                  .getPrescription(widget.call.receiverId, widget.call.callerId,
+                      widget.call.channelId, widget.call.patient["id"])
+                  .then((value) {
                 if (value != null) {
                   showModalBottomSheet(
                       barrierColor: Colors.black.withAlpha(1),

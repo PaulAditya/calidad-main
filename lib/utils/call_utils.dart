@@ -18,7 +18,7 @@ class CallUtils {
       context}) async {
     Call call = Call(
         userId: user.uid,
-        callerId: "${user.uid}_${patient['id']}",
+        callerId: user.uid,
         callerName: user.username,
         callerPic: user.profilePhoto,
         receiverId: doctor.uid,
