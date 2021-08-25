@@ -18,6 +18,7 @@ class FirebaseAuthMethods {
     Users user;
     try {
       firebaseUser = _auth.currentUser;
+
       user = users.fromUser(firebaseUser);
     } catch (e) {
       print(e);
@@ -38,13 +39,18 @@ class FirebaseAuthMethods {
     return user;
   }
 
-  Future<Users> signUpWithEmailPassword(String email, String password) async {
+  Future<Users> signUpWithEmailPassword(
+      String email, String password, String displayname) async {
     Users user;
     try {
       UserCredential cred = await _auth.createUserWithEmailAndPassword(
           email: email, password: password);
 
       User firebaseUser = cred.user;
+
+      await firebaseUser.updateProfile(displayName: displayname);
+
+      firebaseUser = _auth.currentUser;
       user = users.fromUser(firebaseUser);
       return user;
     } catch (e) {

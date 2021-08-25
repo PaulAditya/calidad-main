@@ -84,7 +84,6 @@ class _DoctorDetailsState extends State<DoctorDetails> {
                   ),
                 ),
               ),
-              SizedBox(height: 50),
               Column(
                 children: [
                   Container(

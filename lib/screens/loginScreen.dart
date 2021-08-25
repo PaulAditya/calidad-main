@@ -136,7 +136,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   if (user != null) {
                                     Navigator.of(context).pushReplacement(
                                         MaterialPageRoute(
-                                            builder: (context) => HomePage()));
+                                            builder: (context) => HomePage(user: user,)));
                                   }
                                 } catch (e) {
                                   print(e);
@@ -177,7 +177,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     Navigator.pushReplacement(
                                         context,
                                         MaterialPageRoute(
-                                            builder: (context) => HomePage()));
+                                            builder: (context) => HomePage(user: user,)));
                                   }
                                 },
                                 child: Center(
@@ -209,7 +209,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       SizedBox(width: 5.0),
                       InkWell(
                         onTap: () {
-                          Navigator.push(
+                          Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => SignupPage(),

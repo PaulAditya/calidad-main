@@ -25,8 +25,10 @@ class FirebaseRepository {
           String doctorId, String userId, String channelId, String patientId) =>
       _firebaseMethods.getPrescription(doctorId, userId, channelId, patientId);
 
-  Future<Users> signUpWithEmailPassword(String email, String password) =>
-      _firebaseAuthMethods.signUpWithEmailPassword(email, password);
+  Future<Users> signUpWithEmailPassword(
+          String email, String password, String displayname) =>
+      _firebaseAuthMethods.signUpWithEmailPassword(
+          email, password, displayname);
 
   Future<bool> authenticateUser(Users user) =>
       _firebaseAuthMethods.authenticateUser(user);

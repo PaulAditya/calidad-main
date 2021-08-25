@@ -24,13 +24,8 @@ class CallMethods {
   Future<bool> makeCall({Call call}) async {
     try {
       Map<String, dynamic> map = call.toMap(call);
-      String docId = call.receiverId +
-          "-" +
-          call.callerId +
-          "_" +
-          call.patient["id"] +
-          "-" +
-          call.channelId;
+      String docId =
+          call.receiverId + "-" + call.callerId + "-" + call.channelId;
       await callCollection.doc(call.receiverId).set(map);
       DateTime now = DateTime.now();
 

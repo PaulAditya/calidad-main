@@ -8,18 +8,43 @@ import 'package:calidad_app/screens/prescription.dart';
 import 'package:calidad_app/screens/spo2.dart';
 import 'package:calidad_app/screens/stethoscope.dart';
 import 'package:calidad_app/screens/temperature_input.dart';
+import 'package:calidad_app/utils/firebaseRepository.dart';
 import 'package:calidad_app/widgets/deviceCard.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class AddVitalModal extends StatelessWidget {
+class AddVitalModal extends StatefulWidget {
   final Call call;
-  final bool rx;
-  final Map pres;
 
-  const AddVitalModal(
-      {Key key, @required this.call, @required this.rx, @required this.pres})
-      : super(key: key);
+  const AddVitalModal({
+    Key key,
+    @required this.call,
+  }) : super(key: key);
+
+  @override
+  _AddVitalModalState createState() => _AddVitalModalState();
+}
+
+class _AddVitalModalState extends State<AddVitalModal> {
+  bool rx = false;
+  Map prescription = new Map();
+  FirebaseRepository _repo = FirebaseRepository();
+  prescriptionAvailable() async {
+    prescription = await _repo.getPrescription(widget.call.receiverId,
+        widget.call.userId, widget.call.channelId, widget.call.patient["id"]);
+    if (prescription != null) {
+      setState(() {
+        rx = true;
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    prescriptionAvailable();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -51,17 +76,17 @@ class AddVitalModal extends StatelessWidget {
                 DeviceCard(
                     image: 'assets/thermometer.png',
                     title: 'Temperature',
-                    page: Temperature(call: call)),
+                    page: Temperature(call: widget.call)),
                 DeviceCard(
                     image: 'assets/oxygen.png',
                     title: 'Spo2',
-                    page: Spo2Screen(call: call)),
+                    page: Spo2Screen(call: widget.call)),
                 DeviceCard(
                     image: 'assets/otoscope.png',
                     title: 'Otoscope',
                     page: Otoscope(
                       pageName: "Otoscope",
-                      call: call,
+                      call: widget.call,
                       fileName: "otoscope",
                       camera: false,
                       gallery: true,
@@ -75,7 +100,7 @@ class AddVitalModal extends StatelessWidget {
                     title: 'Dental',
                     page: Otoscope(
                       pageName: "Dental",
-                      call: call,
+                      call: widget.call,
                       fileName: "dental_video",
                       camera: false,
                       gallery: true,
@@ -89,7 +114,7 @@ class AddVitalModal extends StatelessWidget {
                     title: 'Heart Sound',
                     page: Stethoscope(
                       imageName: "heart.jpeg",
-                      call: call,
+                      call: widget.call,
                       fileName: "heart_audio",
                       noOfFiles: 4,
                     )),
@@ -98,7 +123,7 @@ class AddVitalModal extends StatelessWidget {
                     title: 'Lung Sound',
                     page: Stethoscope(
                       imageName: "lung.jpeg",
-                      call: call,
+                      call: widget.call,
                       fileName: "lungs_audio",
                       noOfFiles: 8,
                     )),
@@ -107,7 +132,7 @@ class AddVitalModal extends StatelessWidget {
                     title: 'Abdomen',
                     page: Stethoscope(
                       imageName: "abdomen.jpeg",
-                      call: call,
+                      call: widget.call,
                       fileName: "abdomen_audio",
                       noOfFiles: 4,
                     )),
@@ -116,7 +141,7 @@ class AddVitalModal extends StatelessWidget {
                     title: 'Skin',
                     page: Otoscope(
                       pageName: "Dermatological Exam",
-                      call: call,
+                      call: widget.call,
                       fileName: "skin_image",
                       camera: true,
                       gallery: true,
@@ -130,7 +155,7 @@ class AddVitalModal extends StatelessWidget {
                     title: 'Blood Pressure',
                     page: Otoscope(
                       pageName: "Blood Pressure",
-                      call: call,
+                      call: widget.call,
                       fileName: "bp_reading",
                       camera: true,
                       gallery: true,
@@ -144,7 +169,7 @@ class AddVitalModal extends StatelessWidget {
                     title: 'Documents',
                     page: Otoscope(
                       pageName: "Documents",
-                      call: call,
+                      call: widget.call,
                       fileName: "xtra_files",
                       camera: true,
                       gallery: true,
@@ -158,7 +183,7 @@ class AddVitalModal extends StatelessWidget {
                     title: 'Eye',
                     page: Otoscope(
                       pageName: "Opthalmic Exam",
-                      call: call,
+                      call: widget.call,
                       fileName: "eye_image",
                       camera: true,
                       gallery: true,
@@ -171,21 +196,21 @@ class AddVitalModal extends StatelessWidget {
                     image: 'assets/ecg.png',
                     title: 'ECG',
                     page: ECG(
-                      call: call,
+                      call: widget.call,
                     )),
                 DeviceCard(
                     image: 'assets/e.png',
                     title: 'EHR access',
                     page: EHRAccess(
-                      uid: call.userId,
-                      patientId: call.patient["id"],
-                      doctorId: call.receiverId,
+                      uid: widget.call.userId,
+                      patientId: widget.call.patient["id"],
+                      doctorId: widget.call.receiverId,
                     )),
                 DeviceCard(
                     image: 'assets/peekflow.jpg',
                     title: 'Peakflow',
                     page: PeakFlow(
-                      call: call,
+                      call: widget.call,
                     )),
               ],
             ),
@@ -197,7 +222,7 @@ class AddVitalModal extends StatelessWidget {
                         context,
                         MaterialPageRoute(
                             builder: (context) => Prescription(
-                                  callDetails: pres,
+                                  callDetails: prescription,
                                 )));
                   }
                 : null,

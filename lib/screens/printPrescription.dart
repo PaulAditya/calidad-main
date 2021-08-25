@@ -1,6 +1,7 @@
 import 'package:calidad_app/model/callDetails.dart';
 import 'package:calidad_app/model/doctor.dart';
 import 'package:calidad_app/model/patient.dart';
+import 'package:calidad_app/model/prescription.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 
@@ -64,36 +65,28 @@ class _PrintPrescriptionState extends State<PrintPrescription> {
     }
   }
 
-  List preparePrescription(
-      Doctor doctor, Patient patient, CallDetails details) {
+  List<LineText> preparePrescription(Doctor doctor, CallDetails details) {
     List<LineText> list = [];
-    Map doc = Doctor().toMap(doctor);
-    Map pat = patient.toJson();
-    Map det = details.toMap();
-    pat.forEach((key, value) {
-      list.add(LineText(
-          type: LineText.TYPE_TEXT,
-          content: value,
-          weight: 1,
-          align: LineText.ALIGN_LEFT,
-          linefeed: 1));
-    });
-    doc.forEach((key, value) {
-      list.add(LineText(
-          type: LineText.TYPE_TEXT,
-          content: value,
-          weight: 1,
-          align: LineText.ALIGN_LEFT,
-          linefeed: 1));
-    });
+    Prescription prescription = new Prescription(doctor, details);
+    Map presMap = new Map();
+    presMap = prescription.toMap();
 
-    det.forEach((key, value) {
-      list.add(LineText(
-          type: LineText.TYPE_TEXT,
-          content: value,
-          weight: 1,
-          align: LineText.ALIGN_LEFT,
-          linefeed: 1));
+    presMap.forEach((key, value) {
+      if (value == null) {
+        list.add(LineText(
+            type: LineText.TYPE_TEXT,
+            content: "$key - NOT AVAILABLE",
+            weight: 1,
+            align: LineText.ALIGN_LEFT,
+            linefeed: 1));
+      } else {
+        list.add(LineText(
+            type: LineText.TYPE_TEXT,
+            content: "$key - $value",
+            weight: 1,
+            align: LineText.ALIGN_LEFT,
+            linefeed: 1));
+      }
     });
 
     return list;
@@ -104,6 +97,8 @@ class _PrintPrescriptionState extends State<PrintPrescription> {
     Patient patient = widget.callDetails["patient"];
     Doctor doctor = widget.callDetails["doctor"];
     CallDetails details = widget.callDetails["callDetails"];
+    List<LineText> res = preparePrescription(doctor, details);
+
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
@@ -190,8 +185,7 @@ class _PrintPrescriptionState extends State<PrintPrescription> {
                             ? () async {
                                 Map<String, dynamic> config = Map();
                                 List<LineText> list = [];
-                                list = preparePrescription(
-                                    doctor, patient, details);
+                                list = preparePrescription(doctor, details);
 
                                 await bluetoothPrint.printReceipt(config, list);
                               }

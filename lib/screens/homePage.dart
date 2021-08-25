@@ -6,30 +6,28 @@ import 'package:calidad_app/screens/patients.dart';
 import 'package:calidad_app/utils/firebaseRepository.dart';
 import 'package:calidad_app/widgets/categoryBox.dart';
 import 'package:calidad_app/widgets/doctorCard.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
+  final Users user;
+
+  const HomePage({Key key, @required this.user}) : super(key: key);
   @override
   _HomePageState createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
   FirebaseRepository _firebaseRepository = FirebaseRepository();
-  UserProvider userProvider;
-  Users user;
+
   @override
   void initState() {
     super.initState();
     SchedulerBinding.instance.addPostFrameCallback((_) async {
-      userProvider = Provider.of<UserProvider>(context, listen: false);
-
-      await userProvider.refreshUser();
-      user = userProvider.getUser;
-      authenticateUser(user);
+      authenticateUser(widget.user);
     });
   }
 
@@ -47,44 +45,75 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    userProvider = Provider.of<UserProvider>(context, listen: false);
-
     var height = MediaQuery.of(context).size.height;
     var width = MediaQuery.of(context).size.width;
+
     return Scaffold(
       drawer: Container(
         width: width * 0.7,
         child: Drawer(
             child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 5, vertical: 20),
                 child: Column(
-                  children: [
-                    SizedBox(height: 40),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => Patients()));
-                      },
-                      child: ListTile(
-                        title: Text("Patients",
-                            style: GoogleFonts.montserrat(fontSize: 22)),
-                      ),
+          children: [
+            Container(
+              alignment: Alignment.topLeft,
+              padding:
+                  EdgeInsets.only(top: 40, left: 20, right: 20, bottom: 10),
+              height: 180,
+              width: width,
+              decoration: BoxDecoration(
+                  color: Colors.blue[900],
+                  borderRadius:
+                      BorderRadius.only(bottomRight: Radius.circular(40))),
+              child: Column(
+                children: [
+                  Container(
+                    height: 60,
+                    width: 60,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white,
                     ),
-                    SizedBox(height: 10),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(context,
-                            MaterialPageRoute(builder: (context) => History()));
-                      },
-                      child: ListTile(
-                        title: Text("History",
-                            style: GoogleFonts.montserrat(fontSize: 22)),
-                      ),
-                    ),
-                  ],
-                ))),
+                    child: widget.user.profilePhoto == null
+                        ? Icon(
+                            Icons.person,
+                            size: 50,
+                            color: Colors.blue[900],
+                          )
+                        : Image.network(widget.user.profilePhoto),
+                  ),
+                  SizedBox(height: 20),
+                  Text(
+                    widget.user.username,
+                    style: GoogleFonts.montserrat(
+                        fontSize: 24, color: Colors.white),
+                  )
+                ],
+              ),
+            ),
+            SizedBox(height: 20),
+            GestureDetector(
+              onTap: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => Patients()));
+              },
+              child: ListTile(
+                title: Text("Patients",
+                    style: GoogleFonts.montserrat(fontSize: 20)),
+              ),
+            ),
+            GestureDetector(
+              onTap: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => History()));
+              },
+              child: ListTile(
+                title: Text("History",
+                    style: GoogleFonts.montserrat(fontSize: 20)),
+              ),
+            ),
+          ],
+        ))),
       ),
       backgroundColor: Colors.white,
       body: SingleChildScrollView(

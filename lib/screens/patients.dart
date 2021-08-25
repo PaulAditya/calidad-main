@@ -97,13 +97,13 @@ class _PatientsState extends State<Patients> {
                           itemBuilder: (context, index) {
                             return Container(
                               padding: EdgeInsets.symmetric(horizontal: 5),
-                              height: 80,
+                              // height: 80,
                               width: 150,
                               margin: EdgeInsets.only(bottom: 10),
                               decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(10),
                                   border: Border.all(
-                                    color: Colors.black,
+                                    color: Colors.blue[900],
                                   )),
                               child: Row(
                                 mainAxisAlignment:
@@ -125,12 +125,12 @@ class _PatientsState extends State<Patients> {
                                       title: Text(
                                         "Name - ${patients[index]['name']}",
                                         style: GoogleFonts.montserrat(
-                                            fontSize: 18),
+                                            fontSize: 18, color: Colors.black),
                                       ),
                                       subtitle: Text(
                                         "Age - ${patients[index]['age']}",
                                         style: GoogleFonts.montserrat(
-                                            fontSize: 16),
+                                            fontSize: 16, color: Colors.grey),
                                       ),
                                     ),
                                   ),
@@ -156,6 +156,7 @@ class _PatientsState extends State<Patients> {
                                           child: Icon(
                                             Icons.edit,
                                             size: 30,
+                                            color: Colors.blue[900],
                                           ),
                                         ),
                                       ),
@@ -220,6 +221,7 @@ class _PatientsState extends State<Patients> {
                                           child: Icon(
                                             Icons.delete,
                                             size: 30,
+                                            color: Colors.red[700],
                                           ),
                                         ),
                                       )

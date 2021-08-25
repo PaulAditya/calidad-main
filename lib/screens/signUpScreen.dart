@@ -13,6 +13,7 @@ class SignupPage extends StatefulWidget {
 class _SignupPageState extends State<SignupPage> {
   TextEditingController _email = TextEditingController();
   TextEditingController _password = TextEditingController();
+  TextEditingController _confirmPassword = TextEditingController();
   final FirebaseRepository repo = FirebaseRepository();
   TextEditingController _userName = TextEditingController();
   GlobalKey<FormState> _formkey = GlobalKey<FormState>();
@@ -92,17 +93,40 @@ class _SignupPageState extends State<SignupPage> {
                             borderSide: BorderSide(color: Colors.blueAccent))),
                     obscureText: true,
                   ),
+                  SizedBox(height: 10.0),
+                  TextFormField(
+                    validator: MultiValidator([
+                      RequiredValidator(errorText: "Required*"),
+                      MinLengthValidator(6,
+                          errorText: "Minimum length should be 6")
+                    ]),
+                    controller: _confirmPassword,
+                    decoration: InputDecoration(
+                        labelText: 'CONFIRM PASSWORD ',
+                        labelStyle: GoogleFonts.montserrat(
+                            fontWeight: FontWeight.bold, color: Colors.grey),
+                        focusedBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: Colors.blueAccent))),
+                    obscureText: true,
+                  ),
                   SizedBox(height: 50.0),
                   GestureDetector(
                     onTap: () async {
-                      if (_formkey.currentState.validate()) {
-                        Users user = await repo.signUpWithEmailPassword(
-                            _email.text, _password.text);
-                        if (user != null) {
-                          Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(
-                                  builder: (context) => HomePage()));
+                      if (_confirmPassword.text == _password.text) {
+                        if (_formkey.currentState.validate()) {
+                          Users user = await repo.signUpWithEmailPassword(
+                              _email.text, _password.text, _userName.text);
+                          if (user != null) {
+                            Navigator.of(context)
+                                .pushReplacement(MaterialPageRoute(
+                                    builder: (context) => HomePage(
+                                          user: user,
+                                        )));
+                          }
                         }
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text("Passwords Do Not Match")));
                       }
                     },
                     child: Container(

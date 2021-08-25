@@ -323,7 +323,7 @@ class _CallScreenState extends State<CallScreen> {
               if (res) {
                 var value = await repo.getPrescription(
                     widget.call.receiverId,
-                    widget.call.callerId,
+                    widget.call.userId,
                     widget.call.channelId,
                     widget.call.patient["id"]);
 
@@ -363,33 +363,14 @@ class _CallScreenState extends State<CallScreen> {
             padding: const EdgeInsets.all(12.0),
           ),
           RawMaterialButton(
-            onPressed: () async {
-              await repo
-                  .getPrescription(widget.call.receiverId, widget.call.callerId,
-                      widget.call.channelId, widget.call.patient["id"])
-                  .then((value) {
-                if (value != null) {
-                  showModalBottomSheet(
-                      barrierColor: Colors.black.withAlpha(1),
-                      backgroundColor: Colors.transparent,
-                      context: context,
-                      builder: (context) => AddVitalModal(
-                            call: widget.call,
-                            rx: true,
-                            pres: value,
-                          ));
-                } else {
-                  showModalBottomSheet(
-                      barrierColor: Colors.black.withAlpha(1),
-                      backgroundColor: Colors.transparent,
-                      context: context,
-                      builder: (context) => AddVitalModal(
-                            pres: null,
-                            call: widget.call,
-                            rx: false,
-                          ));
-                }
-              });
+            onPressed: () {
+              showModalBottomSheet(
+                  barrierColor: Colors.black.withAlpha(1),
+                  backgroundColor: Colors.transparent,
+                  context: context,
+                  builder: (context) => AddVitalModal(
+                        call: widget.call,
+                      ));
             },
             child: Icon(
               Icons.pending_actions_rounded,
