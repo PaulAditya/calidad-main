@@ -16,6 +16,11 @@ class FirebaseRepository {
 
   Future<Users> signInWithGoogle() => _firebaseAuthMethods.signInWithGoogle();
 
+  Future<void> signOut() => _firebaseAuthMethods.signOut();
+
+  Future resetPassword(String email) =>
+      _firebaseAuthMethods.resetPassword(email);
+
   Future<Users> signInWithEmailPass(String email, String password) =>
       _firebaseAuthMethods.signInWithEmailPass(email, password);
 
@@ -47,6 +52,10 @@ class FirebaseRepository {
 
   Future<bool> addDoctorAccess(String uid, String patientId, String doctorId) =>
       _firebaseMethods.addDoctorAccess(uid, patientId, doctorId);
+
+  Future<bool> removeDoctorAccess(
+          String uid, String patientId, String doctorId) =>
+      _firebaseMethods.removeDoctorAccess(uid, patientId, doctorId);
 
   Future<bool> doctorEHRAccess(String uid, String patientId, String doctorId) =>
       _firebaseMethods.doctorEHRAccess(uid, patientId, doctorId);

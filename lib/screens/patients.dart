@@ -4,6 +4,7 @@ import 'package:calidad_app/model/patient.dart';
 import 'package:calidad_app/model/user.dart';
 import 'package:calidad_app/provider/userProvider.dart';
 import 'package:calidad_app/screens/patientForm.dart';
+import 'package:calidad_app/screens/search_page.dart';
 import 'package:calidad_app/utils/call_utils.dart';
 import 'package:calidad_app/utils/firebaseRepository.dart';
 import 'package:flutter/material.dart';
@@ -12,13 +13,13 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 class Patients extends StatefulWidget {
-  final Users user;
+  final bool call;
   final Doctor doctor;
 
   const Patients({
     Key key,
-    this.user,
-    this.doctor,
+    @required this.call,
+    @required this.doctor,
   }) : super(key: key);
 
   @override
@@ -31,6 +32,8 @@ class _PatientsState extends State<Patients> {
   UserProvider userProvider;
   List<Map> patients;
   bool _isLoading;
+  List filteredList = [];
+  TextEditingController _search = TextEditingController();
 
   Future<List<Map>> getPatients(String uid) async {
     return await _repo.getPatients(uid);
@@ -40,6 +43,7 @@ class _PatientsState extends State<Patients> {
   void initState() {
     super.initState();
     _isLoading = true;
+
     SchedulerBinding.instance.addPostFrameCallback((_) async {
       userProvider = Provider.of<UserProvider>(context, listen: false);
 
@@ -49,15 +53,42 @@ class _PatientsState extends State<Patients> {
         setState(() {
           _isLoading = false;
         });
-
+        filteredList = value;
         return value;
       });
     });
   }
 
+  filterList(List list, String param) {
+    list = list
+        .where((element) =>
+            element['name'].toLowerCase().contains(param.toLowerCase()))
+        .toList();
+    return list;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: Container(
+          padding: EdgeInsets.only(bottom: 5),
+          child: GestureDetector(
+            onTap: () {
+              Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => PatientForm(
+                          user: user,
+                          doctor: widget.doctor,
+                          call: widget.call)));
+            },
+            child: Icon(
+              Icons.add_circle,
+              size: 50,
+              color: Colors.blue[900],
+            ),
+          )),
       appBar: AppBar(
         title: Text("Patients"),
         backgroundColor: Colors.blue[900],
@@ -68,22 +99,44 @@ class _PatientsState extends State<Patients> {
           child: Column(
             children: [
               Container(
-                  height: 100,
-                  child: GestureDetector(
-                    onTap: () {
-                      Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => PatientForm(
-                                  user: widget.user, doctor: widget.doctor)));
-                    },
-                    child: Icon(
-                      Icons.add_circle_outline_rounded,
-                      size: 40,
-                      color: Colors.blue[900],
+                height: 50,
+                child: TextField(
+                  onEditingComplete: () {
+                    setState(() {
+                      filteredList = filterList(patients, _search.text);
+                    });
+                  },
+                  controller: _search,
+                  style: GoogleFonts.montserrat(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                      fontSize: 12),
+                  decoration: InputDecoration(
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.black),
+                      borderRadius: new BorderRadius.circular(20),
                     ),
-                  )),
-              SizedBox(height: 10),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.black),
+                      borderRadius: new BorderRadius.circular(20),
+                    ),
+                    filled: true,
+                    fillColor: Colors.white,
+                    hintText: 'Search',
+                    hintStyle: GoogleFonts.montserrat(
+                        fontWeight: FontWeight.w500,
+                        color: Colors.grey,
+                        fontSize: 14),
+                    suffixIcon: IconButton(
+                        icon: Icon(
+                          Icons.search,
+                          color: Colors.grey,
+                        ),
+                        onPressed: () {}),
+                  ),
+                ),
+              ),
+              SizedBox(height: 20),
               _isLoading
                   ? Center(child: CircularProgressIndicator())
                   : patients.length == 0
@@ -93,11 +146,10 @@ class _PatientsState extends State<Patients> {
                       : ListView.builder(
                           physics: NeverScrollableScrollPhysics(),
                           shrinkWrap: true,
-                          itemCount: patients.length,
+                          itemCount: filteredList.length,
                           itemBuilder: (context, index) {
                             return Container(
                               padding: EdgeInsets.symmetric(horizontal: 5),
-                              // height: 80,
                               width: 150,
                               margin: EdgeInsets.only(bottom: 10),
                               decoration: BoxDecoration(
@@ -113,24 +165,23 @@ class _PatientsState extends State<Patients> {
                                     width: 180,
                                     child: ListTile(
                                       onTap: () async {
-                                        if (widget.user != null &&
-                                            widget.doctor != null) {
+                                        if (widget.call) {
                                           await CallUtils.dial(
                                               user: user,
                                               doctor: widget.doctor,
-                                              patient: patients[index],
+                                              patient: filteredList[index],
                                               context: context);
                                         }
                                       },
                                       title: Text(
-                                        "Name - ${patients[index]['name']}",
+                                        "Name - ${filteredList[index]['name']}",
                                         style: GoogleFonts.montserrat(
-                                            fontSize: 18, color: Colors.black),
+                                            fontSize: 16, color: Colors.black),
                                       ),
                                       subtitle: Text(
-                                        "Age - ${patients[index]['age']}",
+                                        "Age - ${filteredList[index]['age']}",
                                         style: GoogleFonts.montserrat(
-                                            fontSize: 16, color: Colors.grey),
+                                            fontSize: 14, color: Colors.grey),
                                       ),
                                     ),
                                   ),
@@ -145,7 +196,7 @@ class _PatientsState extends State<Patients> {
                                                       PatientForm(
                                                         patient:
                                                             Patient.fromMap(
-                                                                patients[
+                                                                filteredList[
                                                                     index]),
                                                         index: index,
                                                       )));
@@ -155,7 +206,7 @@ class _PatientsState extends State<Patients> {
                                           width: 40,
                                           child: Icon(
                                             Icons.edit,
-                                            size: 30,
+                                            size: 20,
                                             color: Colors.blue[900],
                                           ),
                                         ),
@@ -220,7 +271,7 @@ class _PatientsState extends State<Patients> {
                                           width: 40,
                                           child: Icon(
                                             Icons.delete,
-                                            size: 30,
+                                            size: 20,
                                             color: Colors.red[700],
                                           ),
                                         ),

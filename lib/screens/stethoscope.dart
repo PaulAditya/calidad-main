@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:calidad_app/model/call.dart';
 import 'package:calidad_app/provider/userProvider.dart';
 import 'package:calidad_app/utils/call_utils.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:path_provider/path_provider.dart';
@@ -22,7 +23,7 @@ class Stethoscope extends StatefulWidget {
       @required this.imageName})
       : super(key: key);
   final Call call;
-  final String imageName;
+  final List imageName;
   final String fileName;
   final int noOfFiles;
   @override
@@ -43,10 +44,23 @@ class _StethoscopeState extends State<Stethoscope> {
             padding: EdgeInsets.all(20),
             child: Column(
               children: [
-                Container(
-                  height: 250,
-                  child: Image.asset('assets/${widget.imageName}'),
+                CarouselSlider(
+                  options: CarouselOptions(height: 400.0),
+                  items: widget.imageName.map((i) {
+                    return Builder(
+                      builder: (BuildContext context) {
+                        return Container(
+                          height: 250,
+                          child: Image.asset(i),
+                        );
+                      },
+                    );
+                  }).toList(),
                 ),
+                // Container(
+                //   height: 250,
+                //   child: Image.asset('assets/${widget.imageName}'),
+                // ),
                 SizedBox(height: 20),
                 Column(
                   children: List.generate(

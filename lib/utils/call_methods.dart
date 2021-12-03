@@ -9,18 +9,18 @@ class CallMethods {
   final CollectionReference callDetailCollection =
       FirebaseFirestore.instance.collection("callDetails");
 
-  List<dynamic> abdomen_audio = [null, null, null, null];
-  List<dynamic> heart_audio = [null, null, null, null];
-  List<dynamic> lungs_audio = [null, null, null, null, null, null, null, null];
-  List<dynamic> skin_image = [];
-  List<dynamic> otoscope = [];
-  List<dynamic> dental_video = [];
-  List<dynamic> eye_image = [];
-  List<dynamic> xtra_files = [];
-  List<dynamic> ecg = [];
-  List<dynamic> eye_pdf = [];
-  List<dynamic> temperature_image = [];
-  List<dynamic> spo2_image = [];
+  List<dynamic> abdomen_audio;
+  List<dynamic> heart_audio;
+  List<dynamic> lungs_audio;
+  List<dynamic> skin_image;
+  List<dynamic> otoscope;
+  List<dynamic> dental_video;
+  List<dynamic> eye_image;
+  List<dynamic> xtra_files;
+  List<dynamic> ecg;
+  List<dynamic> eye_pdf;
+  List<dynamic> temperature_image;
+  List<dynamic> spo2_image;
   Future<bool> makeCall({Call call}) async {
     try {
       Map<String, dynamic> map = call.toMap(call);
@@ -28,7 +28,18 @@ class CallMethods {
           call.receiverId + "-" + call.callerId + "-" + call.channelId;
       await callCollection.doc(call.receiverId).set(map);
       DateTime now = DateTime.now();
-
+      abdomen_audio = [null, null, null, null];
+      heart_audio = [null, null, null, null];
+      lungs_audio = [null, null, null, null, null, null, null, null];
+      otoscope = [];
+      dental_video = [];
+      eye_image = [];
+      xtra_files = [];
+      skin_image = [];
+      ecg = [];
+      eye_pdf = [];
+      temperature_image = [];
+      spo2_image = [];
       Map<String, dynamic> vitals = Map<String, dynamic>();
       vitals["doctor"] = call.receiverName;
       vitals["doctor_id"] = call.receiverId;
@@ -111,6 +122,7 @@ class CallMethods {
         spo2_image.add(url);
         vitals[name] = spo2_image;
       } else if (name == "temperature_image") {
+        print(temperature_image.length);
         temperature_image.add(url);
         vitals[name] = temperature_image;
       } else if (name == "xtra_files") {
@@ -125,6 +137,7 @@ class CallMethods {
 
         vitals[name] = eye_pdf;
       }
+      print(vitals);
 
       await callDetailCollection.doc(docId).update(vitals);
 
@@ -137,16 +150,6 @@ class CallMethods {
 
   Future<bool> endCall({Call call}) async {
     try {
-      abdomen_audio.clear();
-      heart_audio.clear();
-      lungs_audio.clear();
-      dental_video.clear();
-      otoscope.clear();
-      skin_image.clear();
-      xtra_files.clear();
-      temperature_image.clear();
-      spo2_image.clear();
-
       await callCollection.doc(call.receiverId).delete();
       return true;
     } catch (e) {

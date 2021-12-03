@@ -13,8 +13,10 @@ class PatientForm extends StatefulWidget {
   final Users user;
   final Doctor doctor;
   final int index;
+  final bool call;
 
-  const PatientForm({Key key, this.user, this.doctor, this.patient, this.index})
+  const PatientForm(
+      {Key key, this.user, this.doctor, this.patient, this.index, this.call})
       : super(key: key);
 
   @override
@@ -62,7 +64,7 @@ class _PatientFormState extends State<PatientForm> {
             context,
             MaterialPageRoute(
                 builder: (context) =>
-                    Patients(user: widget.user, doctor: widget.doctor)));
+                    Patients(call: widget.call, doctor: widget.doctor)));
         return;
       },
       child: Scaffold(
@@ -232,7 +234,7 @@ class _PatientFormState extends State<PatientForm> {
                                   context,
                                   MaterialPageRoute(
                                       builder: (context) => Patients(
-                                          user: widget.user,
+                                          call: widget.call,
                                           doctor: widget.doctor)));
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(
@@ -261,7 +263,7 @@ class _PatientFormState extends State<PatientForm> {
                                   context,
                                   MaterialPageRoute(
                                       builder: (context) => Patients(
-                                          user: widget.user,
+                                          call: widget.call,
                                           doctor: widget.doctor)));
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(

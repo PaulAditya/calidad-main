@@ -161,6 +161,24 @@ class FirebaseMethods {
     return false;
   }
 
+  Future<bool> removeDoctorAccess(
+      String uid, String patientId, String doctorId) async {
+    try {
+      Patient patient = await getPatientById(uid, patientId);
+      patient.allowedDoctors.remove(doctorId);
+      DocumentSnapshot ds = await _userCollection.doc(uid).get();
+      Users user = Users.fromMap(ds.data());
+      int index =
+          user.patients.indexWhere((element) => element["id"] == patientId);
+      user.patients[index] = patient.toJson();
+      await _userCollection.doc(uid).update({'patients': user.patients});
+      return true;
+    } catch (e) {
+      print(e);
+    }
+    return false;
+  }
+
   Future<bool> doctorEHRAccess(
       String uid, String patientId, String doctorId) async {
     try {
@@ -309,7 +327,7 @@ class FirebaseMethods {
                   ],
                 );
               });
-        } else if (gallery) {
+        } else if (gallery || pdf) {
           await showDialog(
               context: context,
               builder: (context) {

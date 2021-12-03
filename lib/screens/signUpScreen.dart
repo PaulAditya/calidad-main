@@ -35,13 +35,13 @@ class _SignupPageState extends State<SignupPage> {
                   text: 'Register',
                   style: GoogleFonts.montserrat(
                       color: Colors.black,
-                      fontSize: height * 0.1,
+                      fontSize: height * 0.08,
                       fontWeight: FontWeight.bold),
                   children: <TextSpan>[
                     TextSpan(
                         text: '.',
                         style: TextStyle(
-                            fontSize: height * 0.1,
+                            fontSize: height * 0.08,
                             fontWeight: FontWeight.bold,
                             color: Colors.blue[900]))
                   ]),

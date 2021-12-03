@@ -51,11 +51,43 @@ class _EHRAccessState extends State<EHRAccess> {
                   child: CircularProgressIndicator(),
                 )
               : _access
-                  ? Container(
-                      child: Text(
-                        "This doctor has access to your EHR.",
-                        style: GoogleFonts.montserrat(fontSize: 18),
-                      ),
+                  ? Column(
+                      children: [
+                        Container(
+                          child: Text(
+                            "This doctor has access to your EHR.",
+                            style: GoogleFonts.montserrat(fontSize: 18),
+                          ),
+                        ),
+                        SizedBox(height: 20),
+                        Container(
+                          decoration: BoxDecoration(
+                              border: Border.all(color: Colors.blue[900])),
+                          child: TextButton(
+                              onPressed: () async {
+                                _repo
+                                    .removeDoctorAccess(widget.uid,
+                                        widget.patientId, widget.doctorId)
+                                    .then((value) async {
+                                  if (value) {
+                                    bool res = await _repo.doctorEHRAccess(
+                                        widget.uid,
+                                        widget.patientId,
+                                        widget.doctorId);
+
+                                    setState(() {
+                                      _access = res;
+                                    });
+                                  } else
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(content: Text("Try Again")));
+                                });
+                              },
+                              child: Text("Cancel Access",
+                                  style: GoogleFonts.montserrat(
+                                      fontSize: 18, color: Colors.blue[900]))),
+                        )
+                      ],
                     )
                   : Column(
                       children: [

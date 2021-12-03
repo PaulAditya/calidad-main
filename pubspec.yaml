@@ -24,7 +24,8 @@ dependency_overrides:
   file: ^5.0.4
 
 dependencies:
-  
+  pdf: ^3.5.0
+  pay: ^1.0.5
   bluetooth_print: ^3.0.1
   form_field_validator: ^1.1.0
   google_fonts: 
@@ -45,11 +46,13 @@ dependencies:
   cloud_firestore: ^1.0.1
   flutter_audio_recorder: ^0.5.5
   file_picker: ^3.0.3
+  carousel_slider: ^4.0.0
   flutter:
     sdk: flutter
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.0
+  ext_storage: ^1.0.3
 
 
 
@@ -72,6 +75,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/
+    
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

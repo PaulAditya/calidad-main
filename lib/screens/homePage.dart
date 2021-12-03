@@ -1,13 +1,14 @@
+import 'package:calidad_app/model/doctor.dart';
 import 'package:calidad_app/model/user.dart';
 import 'package:calidad_app/provider/userProvider.dart';
 import 'package:calidad_app/screens/history.dart';
+import 'package:calidad_app/screens/loginScreen.dart';
 
 import 'package:calidad_app/screens/patients.dart';
+import 'package:calidad_app/screens/search_page.dart';
 import 'package:calidad_app/utils/firebaseRepository.dart';
 import 'package:calidad_app/widgets/categoryBox.dart';
 import 'package:calidad_app/widgets/doctorCard.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -22,7 +23,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   FirebaseRepository _firebaseRepository = FirebaseRepository();
-
+  TextEditingController _search = TextEditingController();
   @override
   void initState() {
     super.initState();
@@ -51,6 +52,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       drawer: Container(
         width: width * 0.7,
+        //Nav Drawer
         child: Drawer(
             child: Container(
                 child: Column(
@@ -64,7 +66,7 @@ class _HomePageState extends State<HomePage> {
               decoration: BoxDecoration(
                   color: Colors.blue[900],
                   borderRadius:
-                      BorderRadius.only(bottomRight: Radius.circular(40))),
+                      BorderRadius.only(bottomRight: Radius.circular(30))),
               child: Column(
                 children: [
                   Container(
@@ -82,7 +84,7 @@ class _HomePageState extends State<HomePage> {
                           )
                         : Image.network(widget.user.profilePhoto),
                   ),
-                  SizedBox(height: 20),
+                  SizedBox(height: 25),
                   Text(
                     widget.user.username,
                     style: GoogleFonts.montserrat(
@@ -94,12 +96,17 @@ class _HomePageState extends State<HomePage> {
             SizedBox(height: 20),
             GestureDetector(
               onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => Patients()));
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => Patients(
+                              doctor: null,
+                              call: false,
+                            )));
               },
               child: ListTile(
                 title: Text("Patients",
-                    style: GoogleFonts.montserrat(fontSize: 20)),
+                    style: GoogleFonts.montserrat(fontSize: 18)),
               ),
             ),
             GestureDetector(
@@ -109,12 +116,27 @@ class _HomePageState extends State<HomePage> {
               },
               child: ListTile(
                 title: Text("History",
-                    style: GoogleFonts.montserrat(fontSize: 20)),
+                    style: GoogleFonts.montserrat(fontSize: 18)),
+              ),
+            ),
+            GestureDetector(
+              onTap: () {
+                _firebaseRepository.signOut();
+                UserProvider().updateUser(null);
+
+                Navigator.pushReplacement(context,
+                    MaterialPageRoute(builder: (context) => LoginScreen()));
+              },
+              child: ListTile(
+                title:
+                    Text("Logout", style: GoogleFonts.montserrat(fontSize: 18)),
               ),
             ),
           ],
         ))),
       ),
+
+      ///
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: GestureDetector(
@@ -124,7 +146,7 @@ class _HomePageState extends State<HomePage> {
           },
           child: Column(
             children: [
-              //SEARCH
+              //SEARCH Area
               Container(
                 padding: EdgeInsets.only(top: 50, left: 15, right: 15),
                 alignment: Alignment.topCenter,
@@ -139,25 +161,37 @@ class _HomePageState extends State<HomePage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      alignment: Alignment.center,
-                      height: width * 0.1,
-                      width: width * 0.1,
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          color: Colors.white),
-                      child: Builder(
-                        builder: (context) => GestureDetector(
-                          onTap: () {
-                            Scaffold.of(context).openDrawer();
-                          },
-                          child: Icon(
-                            Icons.menu,
-                            size: height * 0.04,
-                            color: Colors.blue[900],
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          alignment: Alignment.center,
+                          height: 35,
+                          width: 35,
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              color: Colors.white),
+                          child: Builder(
+                            builder: (context) => GestureDetector(
+                              onTap: () {
+                                Scaffold.of(context).openDrawer();
+                              },
+                              child: Icon(
+                                Icons.menu,
+                                size: 20,
+                                color: Colors.blue[900],
+                              ),
+                            ),
                           ),
                         ),
-                      ),
+                        Container(
+                          child: Image.asset(
+                            'assets/logo_full_white.png',
+                            height: 40,
+                            width: 100,
+                          ),
+                        )
+                      ],
                     ),
                     Container(
                       padding: EdgeInsets.only(top: 40),
@@ -188,6 +222,19 @@ class _HomePageState extends State<HomePage> {
                     Container(
                       height: 50,
                       child: TextField(
+                        onEditingComplete: () async {
+                          List<Doctor> doctors =
+                              await _firebaseRepository.getDoctors();
+
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => SearchPage(
+                                        parameter: _search.text,
+                                        searchList: doctors,
+                                      )));
+                        },
+                        controller: _search,
                         style: GoogleFonts.montserrat(
                             fontWeight: FontWeight.bold,
                             color: Colors.black,
@@ -203,18 +250,17 @@ class _HomePageState extends State<HomePage> {
                           ),
                           filled: true,
                           fillColor: Colors.white,
-                          hintText: 'Search a doctor or health issue',
+                          hintText: 'Search for a doctor ',
                           hintStyle: GoogleFonts.montserrat(
                               fontWeight: FontWeight.w500,
                               color: Colors.grey,
                               fontSize: 14),
                           suffixIcon: IconButton(
-                            icon: Icon(
-                              Icons.search,
-                              color: Colors.grey,
-                            ),
-                            onPressed: () {},
-                          ),
+                              icon: Icon(
+                                Icons.search,
+                                color: Colors.grey,
+                              ),
+                              onPressed: () {}),
                         ),
                       ),
                     ),
@@ -224,7 +270,7 @@ class _HomePageState extends State<HomePage> {
               SizedBox(
                 height: 20,
               ),
-
+              //Categories
               Container(
                 padding: EdgeInsets.only(left: 20, right: 20),
                 child: Column(
@@ -256,6 +302,8 @@ class _HomePageState extends State<HomePage> {
                     SizedBox(
                       height: 30,
                     ),
+
+                    //Doctors
                     Container(
                       alignment: Alignment.centerLeft,
                       child: Text(

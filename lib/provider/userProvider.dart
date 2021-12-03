@@ -14,4 +14,8 @@ class UserProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  void updateUser(Users user) async {
+    _user = user;
+    notifyListeners();
+  }
 }

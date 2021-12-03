@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:calidad_app/model/callDetails.dart';
 import 'package:calidad_app/model/doctor.dart';
 import 'package:calidad_app/model/patient.dart';
@@ -7,6 +10,7 @@ import 'dart:async';
 
 import 'package:bluetooth_print/bluetooth_print.dart';
 import 'package:bluetooth_print/bluetooth_print_model.dart';
+import 'package:flutter/services.dart';
 
 class PrintPrescription extends StatefulWidget {
   final Map callDetails;
@@ -65,7 +69,8 @@ class _PrintPrescriptionState extends State<PrintPrescription> {
     }
   }
 
-  List<LineText> preparePrescription(Doctor doctor, CallDetails details) {
+  Future<List<LineText>> preparePrescription(
+      Doctor doctor, CallDetails details) async {
     List<LineText> list = [];
     Prescription prescription = new Prescription(doctor, details);
     Map presMap = new Map();
@@ -88,6 +93,18 @@ class _PrintPrescriptionState extends State<PrintPrescription> {
             linefeed: 1));
       }
     });
+    Uint8List bytes = (await NetworkAssetBundle(Uri.parse(doctor.signature))
+            .load(doctor.signature))
+        .buffer
+        .asUint8List();
+    List<int> imageBytes = bytes;
+    String base64Image = base64Encode(imageBytes);
+    list.add(LineText(
+        
+        type: LineText.TYPE_IMAGE,
+        content: base64Image,
+        align: LineText.ALIGN_LEFT,
+        linefeed: 1));
 
     return list;
   }
@@ -97,11 +114,10 @@ class _PrintPrescriptionState extends State<PrintPrescription> {
     Patient patient = widget.callDetails["patient"];
     Doctor doctor = widget.callDetails["doctor"];
     CallDetails details = widget.callDetails["callDetails"];
-    List<LineText> res = preparePrescription(doctor, details);
-
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
+          backgroundColor: Colors.blue[900],
           title: const Text('Print Prescription'),
         ),
         body: RefreshIndicator(
@@ -185,7 +201,8 @@ class _PrintPrescriptionState extends State<PrintPrescription> {
                             ? () async {
                                 Map<String, dynamic> config = Map();
                                 List<LineText> list = [];
-                                list = preparePrescription(doctor, details);
+                                list =
+                                    await preparePrescription(doctor, details);
 
                                 await bluetoothPrint.printReceipt(config, list);
                               }

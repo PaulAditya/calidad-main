@@ -10,10 +10,10 @@ class Doctor {
   String email;
   String qualification;
   String address;
+  String signature;
 
   Doctor(
-      {
-      this.address,
+      {this.address,
       this.uid,
       this.name,
       this.rating,
@@ -23,7 +23,8 @@ class Doctor {
       this.from,
       this.till,
       this.experience,
-      this.qualification});
+      this.qualification,
+      this.signature});
 
   Map toMap(Doctor doc) {
     var data = Map<String, dynamic>();
@@ -38,6 +39,7 @@ class Doctor {
     data['rating'] = doc.rating;
     data['isAvailable'] = doc.isAvailable;
     data['speciality'] = doc.speciality;
+    data['sign'] = doc.signature;
 
     return data;
   }
@@ -54,5 +56,6 @@ class Doctor {
     this.rating = mapData['rating'];
     this.isAvailable = mapData['isAvailable'];
     this.speciality = mapData['speciality'];
+    this.signature = mapData['sign'];
   }
 }

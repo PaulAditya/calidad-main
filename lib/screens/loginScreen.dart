@@ -1,5 +1,6 @@
 import 'package:calidad_app/model/user.dart';
 import 'package:calidad_app/screens/homePage.dart';
+import 'package:calidad_app/screens/passwordReset.dart';
 import 'package:calidad_app/screens/signUpScreen.dart';
 import 'package:calidad_app/utils/firebaseRepository.dart';
 import 'package:flutter/material.dart';
@@ -117,6 +118,10 @@ class _LoginScreenState extends State<LoginScreen> {
                             alignment: Alignment(1.0, 0.0),
                             padding: EdgeInsets.only(top: 15.0, left: 20.0),
                             child: InkWell(
+                              onTap: () {
+                                Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (context) => PasswordReset()));
+                              },
                               child: Text(
                                 'Forgot Password',
                                 style: GoogleFonts.montserrat(
@@ -134,9 +139,11 @@ class _LoginScreenState extends State<LoginScreen> {
                                   Users user = await repo.signInWithEmailPass(
                                       _email.text, _password.text);
                                   if (user != null) {
-                                    Navigator.of(context).pushReplacement(
-                                        MaterialPageRoute(
-                                            builder: (context) => HomePage(user: user,)));
+                                    Navigator.of(context)
+                                        .pushReplacement(MaterialPageRoute(
+                                            builder: (context) => HomePage(
+                                                  user: user,
+                                                )));
                                   }
                                 } catch (e) {
                                   print(e);
@@ -177,7 +184,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                     Navigator.pushReplacement(
                                         context,
                                         MaterialPageRoute(
-                                            builder: (context) => HomePage(user: user,)));
+                                            builder: (context) => HomePage(
+                                                  user: user,
+                                                )));
                                   }
                                 },
                                 child: Center(

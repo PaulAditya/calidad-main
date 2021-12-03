@@ -113,7 +113,7 @@ class _AddVitalModalState extends State<AddVitalModal> {
                     image: 'assets/stethoscope.png',
                     title: 'Heart Sound',
                     page: Stethoscope(
-                      imageName: "heart.jpeg",
+                      imageName: ["assets/heart.jpeg"],
                       call: widget.call,
                       fileName: "heart_audio",
                       noOfFiles: 4,
@@ -122,7 +122,10 @@ class _AddVitalModalState extends State<AddVitalModal> {
                     image: 'assets/lungs.png',
                     title: 'Lung Sound',
                     page: Stethoscope(
-                      imageName: "lung.jpeg",
+                      imageName: [
+                        "assets/lung.jpeg",
+                        "assets/stethoscope_back.jpg"
+                      ],
                       call: widget.call,
                       fileName: "lungs_audio",
                       noOfFiles: 8,
@@ -131,7 +134,7 @@ class _AddVitalModalState extends State<AddVitalModal> {
                     image: 'assets/stomach.png',
                     title: 'Abdomen',
                     page: Stethoscope(
-                      imageName: "abdomen.jpeg",
+                      imageName: ["assets/abdomen.jpeg"],
                       call: widget.call,
                       fileName: "abdomen_audio",
                       noOfFiles: 4,
@@ -199,7 +202,7 @@ class _AddVitalModalState extends State<AddVitalModal> {
                       call: widget.call,
                     )),
                 DeviceCard(
-                    image: 'assets/e.png',
+                    image: 'assets/ehr.png',
                     title: 'EHR access',
                     page: EHRAccess(
                       uid: widget.call.userId,

@@ -28,8 +28,9 @@ class _DoctorDetailsState extends State<DoctorDetails> {
   @override
   Widget build(BuildContext context) {
     final UserProvider userProvider =
-        Provider.of<UserProvider>(context, listen: true);
+        Provider.of<UserProvider>(context, listen: false);
     Users user = userProvider.getUser;
+
     return Scaffold(
         // appBar: AppBar(
         //   elevation: 0,
@@ -138,24 +139,6 @@ class _DoctorDetailsState extends State<DoctorDetails> {
                           ),
                         ),
                         SizedBox(height: 30),
-                        // Row(
-                        //   children: [
-                        //     Text(
-                        //       "Rating - ${widget.doctor.rating} / 5",
-                        //       style: GoogleFonts.montserrat(
-                        //           fontSize: 14, fontWeight: FontWeight.w500),
-                        //     ),
-                        //     SizedBox(
-                        //       width: 5,
-                        //     ),
-                        //     Icon(
-                        //       Icons.star,
-                        //       color: Colors.yellow,
-                        //       size: 14,
-                        //     )
-                        //   ],
-                        // ),
-                        SizedBox(height: 10),
                         Row(
                           children: [
                             Text(
@@ -196,45 +179,86 @@ class _DoctorDetailsState extends State<DoctorDetails> {
                   ),
                 ],
               ),
-              GestureDetector(
-                onTap: () async {
-                  if (widget.doctor.isAvailable) {
-                    if (await Permissions
-                        .cameraAndMicrophonePermissionsGranted()) {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => Patients(
-                                    doctor: widget.doctor,
-                                    user: user,
-                                  )));
+              Consumer<UserProvider>(
+                builder: (context, userProvider, child) => GestureDetector(
+                  onTap: () async {
+                    if (widget.doctor.isAvailable) {
+                      if (await Permissions
+                          .cameraAndMicrophonePermissionsGranted()) {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => Patients(
+                                      doctor: widget.doctor,
+                                      call: true,
+                                    )));
+                      }
                     }
-                  }
-                },
-                child: Container(
-                  height: 50.0,
-                  child: Material(
-                    borderRadius: BorderRadius.circular(10.0),
-                    shadowColor: widget.doctor.isAvailable
-                        ? Colors.blueAccent
-                        : Colors.redAccent,
-                    color: widget.doctor.isAvailable
-                        ? Colors.blue[900]
-                        : Colors.redAccent,
-                    elevation: 7.0,
-                    child: Center(
-                      child: Text(
-                        widget.doctor.isAvailable ? 'Call' : 'Not Available',
-                        style: GoogleFonts.montserrat(
-                          fontSize: 20,
-                          color: Colors.white,
-                          fontWeight: FontWeight.w400,
+                  },
+                  child: Container(
+                    height: 50.0,
+                    child: Material(
+                      borderRadius: BorderRadius.circular(10.0),
+                      shadowColor: widget.doctor.isAvailable
+                          ? Colors.blueAccent
+                          : Colors.redAccent,
+                      color: widget.doctor.isAvailable
+                          ? Colors.blue[900]
+                          : Colors.redAccent,
+                      elevation: 7.0,
+                      child: Center(
+                        child: Text(
+                          widget.doctor.isAvailable ? 'Call' : 'Not Available',
+                          style: GoogleFonts.montserrat(
+                            fontSize: 20,
+                            color: Colors.white,
+                            fontWeight: FontWeight.w400,
+                          ),
                         ),
                       ),
                     ),
                   ),
                 ),
-              ),
+              )
+              // GestureDetector(
+              //   onTap: () async {
+              //     if (widget.doctor.isAvailable) {
+              //       if (await Permissions
+              //           .cameraAndMicrophonePermissionsGranted()) {
+              //         Navigator.push(
+              //             context,
+              //             MaterialPageRoute(
+              //                 builder: (context) => Patients(
+              //                       doctor: widget.doctor,
+              //                       user: user,
+              //                     )));
+              //       }
+              //     }
+              //   },
+              //   child: Container(
+              //     height: 50.0,
+              //     child: Material(
+              //       borderRadius: BorderRadius.circular(10.0),
+              //       shadowColor: widget.doctor.isAvailable
+              //           ? Colors.blueAccent
+              //           : Colors.redAccent,
+              //       color: widget.doctor.isAvailable
+              //           ? Colors.blue[900]
+              //           : Colors.redAccent,
+              //       elevation: 7.0,
+              //       child: Center(
+              //         child: Text(
+              //           widget.doctor.isAvailable ? 'Call' : 'Not Available',
+              //           style: GoogleFonts.montserrat(
+              //             fontSize: 20,
+              //             color: Colors.white,
+              //             fontWeight: FontWeight.w400,
+              //           ),
+              //         ),
+              //       ),
+              //     ),
+              //   ),
+              // ),
             ],
           ),
         )

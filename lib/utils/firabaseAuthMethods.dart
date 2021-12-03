@@ -114,4 +114,12 @@ class FirebaseAuthMethods {
     await _googleSignIn.signOut();
     return await _auth.signOut();
   }
+
+  Future resetPassword(String email) async {
+    try {
+      _auth.sendPasswordResetEmail(email: email);
+    } catch (e) {
+      print(e);
+    }
+  }
 }
