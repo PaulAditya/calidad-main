@@ -124,7 +124,7 @@ class _AddVitalModalState extends State<AddVitalModal> {
                     page: Stethoscope(
                       imageName: [
                         "assets/lung.jpeg",
-                        "assets/stethoscope_back.jpg"
+                        "assets/stethoscope_back.png"
                       ],
                       call: widget.call,
                       fileName: "lungs_audio",

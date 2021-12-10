@@ -45,7 +45,8 @@ class _StethoscopeState extends State<Stethoscope> {
             child: Column(
               children: [
                 CarouselSlider(
-                  options: CarouselOptions(height: 400.0),
+                  options: CarouselOptions(
+                      height: 400.0, enableInfiniteScroll: false),
                   items: widget.imageName.map((i) {
                     return Builder(
                       builder: (BuildContext context) {

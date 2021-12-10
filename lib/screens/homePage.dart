@@ -46,7 +46,6 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    var height = MediaQuery.of(context).size.height;
     var width = MediaQuery.of(context).size.width;
 
     return Scaffold(
@@ -121,11 +120,37 @@ class _HomePageState extends State<HomePage> {
             ),
             GestureDetector(
               onTap: () {
-                _firebaseRepository.signOut();
-                UserProvider().updateUser(null);
+                showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: Text("Confirm"),
+                        content: Text("Confirm Logout?"),
+                        actions: [
+                          TextButton(
+                              onPressed: () async {
+                                _firebaseRepository.signOut();
+                                UserProvider().updateUser(null);
 
-                Navigator.pushReplacement(context,
-                    MaterialPageRoute(builder: (context) => LoginScreen()));
+                                Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => LoginScreen()));
+                              },
+                              child: Text("Logout",
+                                  style: GoogleFonts.montserrat(
+                                      fontSize: 16, color: Colors.red))),
+                          TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: Text("Cancel",
+                                  style: GoogleFonts.montserrat(
+                                      fontSize: 16, color: Colors.blue))),
+                        ],
+                      );
+                    });
+                ////
               },
               child: ListTile(
                 title:
@@ -152,9 +177,9 @@ class _HomePageState extends State<HomePage> {
                 alignment: Alignment.topCenter,
                 height: 280,
                 decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                        colors: [Colors.indigo[900], Colors.blue[400]]),
-                    // color: Colors.blue[900],
+                    // gradient: LinearGradient(
+                    // colors: [Colors.indigo[900], Colors.blue[400]]),
+                    color: Color(0xFF063970),
                     borderRadius: BorderRadius.only(
                         bottomLeft: Radius.circular(30),
                         bottomRight: Radius.circular(30))),

@@ -4,7 +4,6 @@ import 'package:calidad_app/screens/homePage.dart';
 import 'package:calidad_app/screens/loginScreen.dart';
 import 'package:calidad_app/utils/firebaseRepository.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
   HomeScreen({Key key}) : super(key: key);

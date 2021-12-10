@@ -68,7 +68,7 @@ class _HistoryState extends State<History> {
                               decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(10),
                                   border: Border.all(
-                                    color: Colors.black,
+                                    color: Colors.blue[900],
                                   )),
                               child: ListTile(
                                 onTap: () async {
@@ -94,11 +94,11 @@ class _HistoryState extends State<History> {
                                 },
                                 title: Text(
                                   "Patient - ${history[index].patientDetails.name}",
-                                  style: GoogleFonts.montserrat(fontSize: 18),
+                                  style: GoogleFonts.montserrat(fontSize: 16),
                                 ),
                                 subtitle: Text(
                                   "Doctor - ${history[index].doctor}",
-                                  style: GoogleFonts.montserrat(fontSize: 16),
+                                  style: GoogleFonts.montserrat(fontSize: 14),
                                 ),
                               ),
                             );
